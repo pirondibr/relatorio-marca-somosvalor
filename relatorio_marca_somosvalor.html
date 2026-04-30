@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Relatório de Marca — Somos Valor</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 40px 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: #e2e8f0;
+    min-height: 100vh;
+  }
+  .container { max-width: 1180px; margin: 0 auto; }
+  header { margin-bottom: 32px; }
+  .eyebrow {
+    text-transform: uppercase; letter-spacing: 2px; font-size: 12px;
+    color: #94a3b8; margin-bottom: 8px;
+  }
+  h1 {
+    font-size: 38px; font-weight: 700; margin: 0 0 8px;
+    background: linear-gradient(90deg, #38bdf8, #a78bfa);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .subtitle { color: #94a3b8; font-size: 15px; max-width: 760px; line-height: 1.5; }
+  .meta {
+    display: flex; gap: 16px; flex-wrap: wrap; margin-top: 16px;
+    font-size: 12px; color: #64748b;
+  }
+  .meta span strong { color: #cbd5e1; }
+
+  .card {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    border-radius: 16px; padding: 24px;
+    margin-bottom: 24px;
+    backdrop-filter: blur(10px);
+  }
+  .card h2 {
+    margin: 0 0 16px; font-size: 18px; font-weight: 600;
+    color: #f1f5f9;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card h2::before {
+    content: ""; width: 4px; height: 20px;
+    background: linear-gradient(180deg, #38bdf8, #a78bfa);
+    border-radius: 2px;
+  }
+
+  table {
+    width: 100%; border-collapse: collapse;
+    font-size: 14px;
+  }
+  thead th {
+    text-align: left; padding: 14px 12px;
+    font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
+    color: #94a3b8; font-weight: 600;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+    background: rgba(30, 41, 59, 0.5);
+  }
+  thead th.num, thead th.growth-cell { text-align: right; }
+  tbody td {
+    padding: 18px 12px;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+    vertical-align: middle;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: rgba(56, 189, 248, 0.05); }
+  tbody tr.focus {
+    background: linear-gradient(90deg, rgba(167, 139, 250, 0.1), transparent);
+    border-left: 3px solid #a78bfa;
+  }
+
+  td.brand { min-width: 240px; }
+  .brand-name {
+    font-weight: 700; font-size: 15px; color: #f8fafc;
+    margin-bottom: 4px; letter-spacing: 0.5px;
+  }
+  .brand-url {
+    font-size: 12px; color: #64748b; text-decoration: none;
+  }
+  .brand-url:hover { color: #38bdf8; }
+  .focus-badge {
+    display: inline-block; padding: 2px 8px; margin-left: 8px;
+    background: linear-gradient(90deg, #a78bfa, #38bdf8);
+    color: #0f172a; font-size: 10px; font-weight: 700;
+    border-radius: 4px; vertical-align: middle;
+  }
+
+  td.num { text-align: right; font-variant-numeric: tabular-nums; font-weight: 500; color: #cbd5e1; }
+  td.num.highlight { color: #f8fafc; font-weight: 700; font-size: 16px; }
+  td.growth-cell { text-align: right; font-variant-numeric: tabular-nums; }
+
+  .growth {
+    display: inline-block; padding: 4px 10px;
+    border-radius: 6px; font-weight: 600; font-size: 13px;
+  }
+  .growth.pos { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
+  .growth.neg { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+  .growth.neu { background: rgba(148, 163, 184, 0.15); color: #cbd5e1; }
+  .muted { color: #64748b; font-style: italic; font-size: 12px; }
+
+  .insights { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+  .insight {
+    background: rgba(30, 41, 59, 0.4);
+    border: 1px solid rgba(148, 163, 184, 0.1);
+    border-radius: 12px; padding: 18px;
+  }
+  .insight .label {
+    text-transform: uppercase; font-size: 10px; letter-spacing: 1.5px;
+    color: #64748b; margin-bottom: 6px;
+  }
+  .insight .value {
+    font-size: 26px; font-weight: 700; color: #f8fafc; margin-bottom: 4px;
+  }
+  .insight .value.pos { color: #4ade80; }
+  .insight .value.neg { color: #f87171; }
+  .insight .desc { font-size: 12px; color: #94a3b8; line-height: 1.5; }
+
+  .takeaways { list-style: none; padding: 0; margin: 0; }
+  .takeaways li {
+    padding: 12px 0 12px 28px; position: relative;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+    font-size: 14px; line-height: 1.6; color: #cbd5e1;
+  }
+  .takeaways li:last-child { border-bottom: none; }
+  .takeaways li::before {
+    content: ""; position: absolute; left: 0; top: 18px;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: linear-gradient(135deg, #38bdf8, #a78bfa);
+  }
+  .takeaways strong { color: #f8fafc; }
+
+  footer {
+    text-align: center; padding: 24px 0;
+    color: #64748b; font-size: 12px;
+  }
+
+  .section-title {
+    font-size: 13px; text-transform: uppercase; letter-spacing: 2px;
+    color: #94a3b8; margin: 32px 0 16px; font-weight: 600;
+  }
+  .card-sub {
+    margin: -8px 0 16px; font-size: 13px; color: #94a3b8;
+  }
+  .meta-tag {
+    display: inline-block; padding: 3px 10px; margin-left: 12px;
+    background: rgba(56, 189, 248, 0.12);
+    color: #38bdf8; font-size: 11px; font-weight: 600;
+    border-radius: 4px; vertical-align: middle;
+    text-transform: none; letter-spacing: 0.3px;
+    border: 1px solid rgba(56, 189, 248, 0.25);
+  }
+
+  .bar-cell { width: 35%; min-width: 180px; padding-right: 16px !important; }
+  thead th.bar-cell { text-align: left; }
+  .bar-track {
+    width: 100%; height: 8px;
+    background: rgba(148, 163, 184, 0.1);
+    border-radius: 999px; overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #38bdf8, #a78bfa);
+    border-radius: 999px;
+    transition: width 0.4s ease;
+  }
+  tr.focus .bar-fill {
+    background: linear-gradient(90deg, #f472b6, #a78bfa);
+  }
+
+  td.invest {
+    color: #fbbf24; font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="eyebrow">Relatório de Marca · Benchmark Competitivo</div>
+      <h1>Somos Valor vs. Mercado</h1>
+      <p class="subtitle">Análise de volume de buscas (Google) das marcas concorrentes em janelas de março — 2023 a 2026 — com índices de crescimento de 1 e 3 anos.</p>
+      <div class="meta">
+        <span><strong>Fonte:</strong> DataForSEO · Google Ads Search Volume</span>
+        <span><strong>Localização:</strong> Brasil (BR-2076)</span>
+        <span><strong>Gerado em:</strong> 30/04/2026 09:45</span>
+      </div>
+    </header>
+
+    <section class="card">
+      <h2>Indicadores principais — Somos Valor</h2>
+      <div class="insights">
+        <div class="insight">
+          <div class="label">Volume mar/2026</div>
+          <div class="value">40</div>
+          <div class="desc">buscas mensais pela marca</div>
+        </div>
+        <div class="insight">
+          <div class="label">Crescimento 1 ano</div>
+          <div class="value neg">-20.0%</div>
+          <div class="desc">março/2025 → março/2026</div>
+        </div>
+        <div class="insight">
+          <div class="label">Crescimento 3 anos</div>
+          <div class="value neu">N/A</div>
+          <div class="desc">março/2023 → março/2026</div>
+        </div>
+        <div class="insight">
+          <div class="label">Posição no benchmark</div>
+          <div class="value">4/4</div>
+          <div class="desc">por volume em mar/2026</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Tabela comparativa</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Marca</th>
+            <th class="growth-cell">Crescimento 1 ano</th>
+            <th class="growth-cell">Crescimento 3 anos</th>
+            <th class="num">03/2026</th>
+            <th class="num">03/2025</th>
+            <th class="num">03/2024</th>
+            <th class="num">03/2023</th>
+          </tr>
+        </thead>
+        <tbody>
+<tr>
+                <td class="brand">
+                    <div class="brand-name">BANKME</div>
+                    <a class="brand-url" href="https://bankme.tech/" target="_blank" rel="noopener">https://bankme.tech/</a>
+                </td>
+                <td class="growth-cell"><span class="growth neg">-15.79%</span></td>
+                <td class="growth-cell"><span class="growth neu">0.00%</span></td>
+                <td class="num highlight">1.600</td>
+                <td class="num">1.900</td>
+                <td class="num">1.300</td>
+                <td class="num">1.600</td>
+            </tr>
+<tr>
+                <td class="brand">
+                    <div class="brand-name">FINSCALE</div>
+                    <a class="brand-url" href="https://finscale.com.br/" target="_blank" rel="noopener">https://finscale.com.br/</a>
+                </td>
+                <td class="growth-cell"><span class="growth pos">+212.50%</span></td>
+                <td class="growth-cell"><span class="growth pos">+9900.00%</span></td>
+                <td class="num highlight">1.000</td>
+                <td class="num">320</td>
+                <td class="num">30</td>
+                <td class="num">10</td>
+            </tr>
+<tr>
+                <td class="brand">
+                    <div class="brand-name">GIRO TECH</div>
+                    <a class="brand-url" href="https://giro.tech/" target="_blank" rel="noopener">https://giro.tech/</a>
+                </td>
+                <td class="growth-cell"><span class="growth pos">+175.00%</span></td>
+                <td class="growth-cell"><span class="growth pos">+319.05%</span></td>
+                <td class="num highlight">880</td>
+                <td class="num">320</td>
+                <td class="num">320</td>
+                <td class="num">210</td>
+            </tr>
+<tr class="focus">
+                <td class="brand">
+                    <div class="brand-name">SOMOS VALOR <span class="focus-badge">FOCO</span></div>
+                    <a class="brand-url" href="https://somosvalor.com.br/" target="_blank" rel="noopener">https://somosvalor.com.br/</a>
+                </td>
+                <td class="growth-cell"><span class="growth neg">-20.00%</span></td>
+                <td class="growth-cell"><span class="muted">N/A</span></td>
+                <td class="num highlight">40</td>
+                <td class="num">50</td>
+                <td class="num">20</td>
+                <td class="num">0</td>
+            </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <h2 class="section-title">Comparativo por canal</h2>
+    <section class="card">
+      <h2>Meta Ads <span class="meta-tag">R$ 400 por anúncio</span></h2>
+      <p class="card-sub">Anúncios ativos na Biblioteca de Anúncios da Meta (Facebook + Instagram)</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Marca</th>
+            <th class="num">Anúncios ativos</th>
+            <th class="bar-cell">Distribuição</th>
+            <th class="num">Estimativa Investimento</th>
+          </tr>
+        </thead>
+        <tbody>
+<tr>
+                <td class="brand">
+                    <div class="brand-name">FINSCALE</div>
+                    <a class="brand-url" href="https://finscale.com.br/" target="_blank" rel="noopener">https://finscale.com.br/</a>
+                </td>
+                <td class="num highlight">49</td>
+                <td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:100.0%"></div></div></td>
+                <td class="num invest">R$ 19.600</td>
+            </tr>
+<tr>
+                <td class="brand">
+                    <div class="brand-name">BANKME</div>
+                    <a class="brand-url" href="https://bankme.tech/" target="_blank" rel="noopener">https://bankme.tech/</a>
+                </td>
+                <td class="num highlight">0</td>
+                <td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:0.0%"></div></div></td>
+                <td class="num invest">R$ 0</td>
+            </tr>
+<tr>
+                <td class="brand">
+                    <div class="brand-name">GIRO TECH</div>
+                    <a class="brand-url" href="https://giro.tech/" target="_blank" rel="noopener">https://giro.tech/</a>
+                </td>
+                <td class="num highlight">0</td>
+                <td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:0.0%"></div></div></td>
+                <td class="num invest">R$ 0</td>
+            </tr>
+<tr class="focus">
+                <td class="brand">
+                    <div class="brand-name">SOMOS VALOR <span class="focus-badge">FOCO</span></div>
+                    <a class="brand-url" href="https://somosvalor.com.br/" target="_blank" rel="noopener">https://somosvalor.com.br/</a>
+                </td>
+                <td class="num highlight">0</td>
+                <td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:0.0%"></div></div></td>
+                <td class="num invest">R$ 0</td>
+            </tr>
+        </tbody>
+      </table>
+    </section>
+<section class="card">
+      <h2>Google Ads <span class="meta-tag">R$ 200 por anúncio</span></h2>
+      <p class="card-sub">Anúncios ativos no Google Ads</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Marca</th>
+            <th class="num">Anúncios ativos</th>
+            <th class="bar-cell">Distribuição</th>
+            <th class="num">Estimativa Investimento</th>
+          </tr>
+        </thead>
+        <tbody>
+<tr>
+                <td class="brand">
+                    <div class="brand-name">BANKME</div>
+                    <a class="brand-url" href="https://bankme.tech/" target="_blank" rel="noopener">https://bankme.tech/</a>
+                </td>
+                <td class="num highlight">59</td>
+                <td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:100.0%"></div></div></td>
+                <td class="num invest">R$ 11.800</td>
+            </tr>
+<tr>
+                <td class="brand">
+                    <div class="brand-name">FINSCALE</div>
+                    <a class="brand-url" href="https://finscale.com.br/" target="_blank" rel="noopener">https://finscale.com.br/</a>
+                </td>
+                <td class="num highlight">12</td>
+                <td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:20.3%"></div></div></td>
+                <td class="num invest">R$ 2.400</td>
+            </tr>
+<tr>
+                <td class="brand">
+                    <div class="brand-name">GIRO TECH</div>
+                    <a class="brand-url" href="https://giro.tech/" target="_blank" rel="noopener">https://giro.tech/</a>
+                </td>
+                <td class="num highlight">3</td>
+                <td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:5.1%"></div></div></td>
+                <td class="num invest">R$ 600</td>
+            </tr>
+<tr class="focus">
+                <td class="brand">
+                    <div class="brand-name">SOMOS VALOR <span class="focus-badge">FOCO</span></div>
+                    <a class="brand-url" href="https://somosvalor.com.br/" target="_blank" rel="noopener">https://somosvalor.com.br/</a>
+                </td>
+                <td class="num highlight">0</td>
+                <td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:0.0%"></div></div></td>
+                <td class="num invest">R$ 0</td>
+            </tr>
+        </tbody>
+      </table>
+    </section>
+<section class="card">
+      <h2>SEO Orgânico </h2>
+      <p class="card-sub">Tráfego orgânico mensal estimado</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Marca</th>
+            <th class="num">Visitas orgânicas/mês</th>
+            <th class="bar-cell">Distribuição</th>
+            
+          </tr>
+        </thead>
+        <tbody>
+<tr>
+                <td class="brand">
+                    <div class="brand-name">GIRO TECH</div>
+                    <a class="brand-url" href="https://giro.tech/" target="_blank" rel="noopener">https://giro.tech/</a>
+                </td>
+                <td class="num highlight">6.900</td>
+                <td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:100.0%"></div></div></td>
+                
+            </tr>
+<tr>
+                <td class="brand">
+                    <div class="brand-name">BANKME</div>
+                    <a class="brand-url" href="https://bankme.tech/" target="_blank" rel="noopener">https://bankme.tech/</a>
+                </td>
+                <td class="num highlight">1.800</td>
+                <td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:26.1%"></div></div></td>
+                
+            </tr>
+<tr>
+                <td class="brand">
+                    <div class="brand-name">FINSCALE</div>
+                    <a class="brand-url" href="https://finscale.com.br/" target="_blank" rel="noopener">https://finscale.com.br/</a>
+                </td>
+                <td class="num highlight">95</td>
+                <td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:1.4%"></div></div></td>
+                
+            </tr>
+<tr class="focus">
+                <td class="brand">
+                    <div class="brand-name">SOMOS VALOR <span class="focus-badge">FOCO</span></div>
+                    <a class="brand-url" href="https://somosvalor.com.br/" target="_blank" rel="noopener">https://somosvalor.com.br/</a>
+                </td>
+                <td class="num highlight">0</td>
+                <td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:0.0%"></div></div></td>
+                
+            </tr>
+        </tbody>
+      </table>
+    </section>
+<section class="card">
+      <h2>Instagram </h2>
+      <p class="card-sub">Seguidores no perfil oficial</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Marca</th>
+            <th class="num">Seguidores</th>
+            <th class="bar-cell">Distribuição</th>
+            
+          </tr>
+        </thead>
+        <tbody>
+<tr>
+                <td class="brand">
+                    <div class="brand-name">FINSCALE</div>
+                    <a class="brand-url" href="https://finscale.com.br/" target="_blank" rel="noopener">https://finscale.com.br/</a>
+                </td>
+                <td class="num highlight">29.000</td>
+                <td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:100.0%"></div></div></td>
+                
+            </tr>
+<tr>
+                <td class="brand">
+                    <div class="brand-name">BANKME</div>
+                    <a class="brand-url" href="https://bankme.tech/" target="_blank" rel="noopener">https://bankme.tech/</a>
+                </td>
+                <td class="num highlight">21.000</td>
+                <td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:72.4%"></div></div></td>
+                
+            </tr>
+<tr>
+                <td class="brand">
+                    <div class="brand-name">GIRO TECH</div>
+                    <a class="brand-url" href="https://giro.tech/" target="_blank" rel="noopener">https://giro.tech/</a>
+                </td>
+                <td class="num highlight">1.400</td>
+                <td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:4.8%"></div></div></td>
+                
+            </tr>
+<tr class="focus">
+                <td class="brand">
+                    <div class="brand-name">SOMOS VALOR <span class="focus-badge">FOCO</span></div>
+                    <a class="brand-url" href="https://somosvalor.com.br/" target="_blank" rel="noopener">https://somosvalor.com.br/</a>
+                </td>
+                <td class="num highlight">1.400</td>
+                <td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:4.8%"></div></div></td>
+                
+            </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <footer>
+      Relatório gerado automaticamente · Dados Google Ads via DataForSEO
+    </footer>
+  </div>
+</body>
+</html>

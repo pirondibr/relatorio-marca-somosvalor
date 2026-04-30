@@ -1,0 +1,12 @@
+# Allowlist: ignore everything by default
+*
+
+# Track only files relevant to this report
+!.gitignore
+!README.md
+!brand_report.py
+!relatorio_marca_somosvalor.html
+!relatorio_marca_somosvalor.xlsx
+!relatorio_marca_somosvalor_1.xlsx
+!construtoras.txt
+!construtora1.txt
