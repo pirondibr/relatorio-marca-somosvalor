@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Relatório SEO Local — Clínica por Cidade</title>
+<style>
+  :root {
+    --card: #ffffff;
+    --text: #0f172a;
+    --muted: #64748b;
+    --accent: #2563eb;
+    --accent-2: #1e3a8a;
+    --accent-soft: #dbeafe;
+    --border: #e2e8f0;
+    --highlight: #fef3c7;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #f1f5f9;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  header {
+    background: linear-gradient(135deg, var(--accent-2) 0%, var(--accent) 100%);
+    color: #fff;
+    padding: 40px 24px 80px;
+    text-align: center;
+    box-shadow: 0 2px 12px rgba(0,0,0,.1);
+  }
+  header h1 { margin: 0 0 8px; font-size: 28px; font-weight: 700; }
+  header p  { margin: 0; opacity: .85; font-size: 15px; }
+  main { max-width: 1100px; margin: -56px auto 0; padding: 0 20px 60px; }
+
+  .tabs {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 4px 18px rgba(15, 23, 42, .08);
+    overflow: hidden;
+    margin-bottom: 28px;
+  }
+  .tab-nav {
+    display: flex;
+    flex-wrap: wrap;
+    background: #f8fafc;
+    border-bottom: 1px solid var(--border);
+  }
+  .tab-btn {
+    flex: 1 1 auto;
+    min-width: 140px;
+    background: transparent;
+    border: 0;
+    padding: 16px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all .15s;
+    font-family: inherit;
+  }
+  .tab-btn:hover { background: #eef2f7; color: var(--text); }
+  .tab-btn.active {
+    color: var(--accent);
+    background: #fff;
+    border-bottom-color: var(--accent);
+  }
+  .tab-btn .num {
+    display: inline-block;
+    background: var(--accent-soft);
+    color: var(--accent-2);
+    border-radius: 6px;
+    padding: 1px 8px;
+    margin-right: 6px;
+    font-size: 12px;
+  }
+  .tab-btn.active .num { background: var(--accent); color: #fff; }
+  .tab-panel { display: none; padding: 28px; }
+  .tab-panel.active { display: block; }
+
+  h2 {
+    margin: 0 0 18px;
+    font-size: 20px;
+    color: var(--accent);
+    border-left: 4px solid var(--accent);
+    padding-left: 12px;
+  }
+  .hero {
+    display: flex; flex-wrap: wrap; gap: 24px; align-items: center;
+    background: linear-gradient(135deg, var(--accent-soft) 0%, #ffffff 100%);
+    border: 1px solid #c7d2fe;
+    border-radius: 12px;
+    padding: 22px 26px;
+    margin: 0 0 22px;
+  }
+  .hero .label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+  .hero .city  { font-size: 30px; font-weight: 700; margin: 2px 0 4px; color: var(--accent-2); }
+  .hero .total { font-size: 18px; color: var(--accent); font-weight: 600; }
+  .hero .badge {
+    background: var(--accent); color: #fff; padding: 6px 14px;
+    border-radius: 999px; font-size: 12px; font-weight: 600;
+    letter-spacing: .05em; text-transform: uppercase; margin-left: auto;
+  }
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+    margin-bottom: 22px;
+  }
+  .stat {
+    background: #f8fafc; border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 16px;
+  }
+  .stat .k { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+  .stat .v { font-size: 20px; font-weight: 700; color: var(--text); margin-top: 4px; }
+
+  table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); font-size: 14px; }
+  th { background: #f8fafc; font-weight: 600; color: var(--muted); text-transform: uppercase; font-size: 12px; letter-spacing: .05em; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  td.rank { width: 50px; color: var(--muted); font-weight: 600; }
+  tbody tr:hover { background: #f8fafc; }
+  tbody tr:first-child td { background: var(--highlight); font-weight: 600; }
+
+  .bar { background: #eef2f7; border-radius: 6px; height: 8px; min-width: 120px; overflow: hidden; }
+  .bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent) 0%, var(--accent-2) 100%); border-radius: 6px; }
+
+  details.city-card {
+    background: #fff; border: 1px solid var(--border); border-radius: 12px;
+    margin-bottom: 14px; overflow: hidden; transition: box-shadow .15s ease;
+  }
+  details.city-card[open] { box-shadow: 0 4px 14px rgba(15,23,42,.06); }
+  details.city-card > summary {
+    list-style: none; cursor: pointer; padding: 14px 20px;
+    display: flex; align-items: center; gap: 14px;
+    background: linear-gradient(90deg, #f8fafc 0%, #ffffff 100%);
+    border-bottom: 1px solid transparent;
+  }
+  details.city-card[open] > summary { border-bottom-color: var(--border); }
+  details.city-card > summary::-webkit-details-marker { display: none; }
+  details.city-card > summary::before {
+    content: '▸'; color: var(--accent);
+    transition: transform .15s; font-size: 12px;
+  }
+  details.city-card[open] > summary::before { transform: rotate(90deg); }
+  .city-name { font-weight: 700; font-size: 16px; }
+  .city-total { margin-left: auto; color: var(--muted); font-size: 14px; }
+  .city-total strong { color: var(--accent); }
+  .uf {
+    display: inline-block; background: var(--accent); color: #fff;
+    font-weight: 700; font-size: 12px; padding: 2px 8px;
+    border-radius: 6px; letter-spacing: .04em;
+  }
+  .filter-bar {
+    display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+    margin: 0 0 16px;
+  }
+  .filter-bar label { font-size: 13px; color: var(--muted); font-weight: 600; }
+  .filter-bar select, .filter-bar input {
+    padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px;
+    background: #fff; font-size: 14px; color: var(--text); min-width: 220px;
+    font-family: inherit;
+  }
+  table.services { margin: 0; }
+  table.services th, table.services td { padding: 8px 20px; }
+
+  footer {
+    text-align: center; color: var(--muted); font-size: 13px;
+    margin-top: 30px; padding: 20px;
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Relatório de SEO Local — Clínica Médica</h1>
+  <p>Volume de busca por cidade, estado e serviço médico</p>
+</header>
+
+<main>
+  <div class="tabs">
+    <nav class="tab-nav" role="tablist">
+      <button class="tab-btn active" data-tab="tab-cidades"><span class="num">1</span>Cidades</button>
+      <button class="tab-btn" data-tab="tab-estados"><span class="num">2</span>Estados</button>
+      <button class="tab-btn" data-tab="tab-servicos"><span class="num">3</span>Serviços</button>
+      <button class="tab-btn" data-tab="tab-servicos-cidade"><span class="num">4</span>Serviços por Cidade</button>
+    </nav>
+
+    <!-- TAB 1: CIDADES -->
+    <section class="tab-panel active" id="tab-cidades">
+      <div class="hero">
+        <div>
+          <div class="label">Cidade com maior volume de buscas</div>
+          <div class="city">São Paulo</div>
+          <div class="total">Total: 30.170 buscas/mês</div>
+        </div>
+        <span class="badge">#1 Ranking</span>
+      </div>
+      <h2>Ranking de Cidades por Volume Total</h2>
+      <div class="summary-grid">
+        <div class="stat"><div class="k">Cidades</div><div class="v">39</div></div>
+        <div class="stat"><div class="k">Palavras-chave</div><div class="v">1.240</div></div>
+        <div class="stat"><div class="k">Volume total</div><div class="v">242.330</div></div>
+        <div class="stat"><div class="k">Líder</div><div class="v">São Paulo</div></div>
+      </div>
+      <table>
+        <thead><tr><th>#</th><th>Cidade</th><th class='num'>Volume</th><th class='num'>Share</th></tr></thead>
+        <tbody><tr><td class='rank'>1</td><td>São Paulo</td><td class='num'>30.170</td><td class='num'>12.4%</td></tr><tr><td class='rank'>2</td><td>Sorocaba</td><td class='num'>22.250</td><td class='num'>9.2%</td></tr><tr><td class='rank'>3</td><td>Campinas</td><td class='num'>18.910</td><td class='num'>7.8%</td></tr><tr><td class='rank'>4</td><td>Belo Horizonte</td><td class='num'>13.870</td><td class='num'>5.7%</td></tr><tr><td class='rank'>5</td><td>Guarulhos</td><td class='num'>9.690</td><td class='num'>4.0%</td></tr><tr><td class='rank'>6</td><td>Teresina</td><td class='num'>9.570</td><td class='num'>3.9%</td></tr><tr><td class='rank'>7</td><td>Piracicaba</td><td class='num'>9.190</td><td class='num'>3.8%</td></tr><tr><td class='rank'>8</td><td>Santos</td><td class='num'>9.010</td><td class='num'>3.7%</td></tr><tr><td class='rank'>9</td><td>Jundiaí</td><td class='num'>8.810</td><td class='num'>3.6%</td></tr><tr><td class='rank'>10</td><td>Taguatinga</td><td class='num'>8.410</td><td class='num'>3.5%</td></tr><tr><td class='rank'>11</td><td>Osasco</td><td class='num'>8.150</td><td class='num'>3.4%</td></tr><tr><td class='rank'>12</td><td>Bauru</td><td class='num'>6.800</td><td class='num'>2.8%</td></tr><tr><td class='rank'>13</td><td>Indaiatuba</td><td class='num'>6.190</td><td class='num'>2.6%</td></tr><tr><td class='rank'>14</td><td>Palmas</td><td class='num'>5.820</td><td class='num'>2.4%</td></tr><tr><td class='rank'>15</td><td>Itapetininga</td><td class='num'>5.650</td><td class='num'>2.3%</td></tr><tr><td class='rank'>16</td><td>Americana</td><td class='num'>5.490</td><td class='num'>2.3%</td></tr><tr><td class='rank'>17</td><td>Vila Velha</td><td class='num'>5.320</td><td class='num'>2.2%</td></tr><tr><td class='rank'>18</td><td>Juazeiro do Norte</td><td class='num'>5.240</td><td class='num'>2.2%</td></tr><tr><td class='rank'>19</td><td>Ribeirão Preto</td><td class='num'>5.060</td><td class='num'>2.1%</td></tr><tr><td class='rank'>20</td><td>Campos dos Goytacazes</td><td class='num'>4.990</td><td class='num'>2.1%</td></tr><tr><td class='rank'>21</td><td>Limeira</td><td class='num'>4.550</td><td class='num'>1.9%</td></tr><tr><td class='rank'>22</td><td>Praia Grande</td><td class='num'>4.330</td><td class='num'>1.8%</td></tr><tr><td class='rank'>23</td><td>Mogi Guaçu</td><td class='num'>4.200</td><td class='num'>1.7%</td></tr><tr><td class='rank'>24</td><td>Patos de Minas</td><td class='num'>3.980</td><td class='num'>1.6%</td></tr><tr><td class='rank'>25</td><td>Rio Claro</td><td class='num'>3.640</td><td class='num'>1.5%</td></tr><tr><td class='rank'>26</td><td>Vitória da Conquista</td><td class='num'>2.670</td><td class='num'>1.1%</td></tr><tr><td class='rank'>27</td><td>Sumaré</td><td class='num'>2.570</td><td class='num'>1.1%</td></tr><tr><td class='rank'>28</td><td>Linhares</td><td class='num'>2.410</td><td class='num'>1.0%</td></tr><tr><td class='rank'>29</td><td>Itu</td><td class='num'>2.240</td><td class='num'>0.9%</td></tr><tr><td class='rank'>30</td><td>Itatiba</td><td class='num'>2.130</td><td class='num'>0.9%</td></tr><tr><td class='rank'>31</td><td>Itapevi</td><td class='num'>1.970</td><td class='num'>0.8%</td></tr><tr><td class='rank'>32</td><td>Barueri</td><td class='num'>1.940</td><td class='num'>0.8%</td></tr><tr><td class='rank'>33</td><td>Tatuí</td><td class='num'>1.860</td><td class='num'>0.8%</td></tr><tr><td class='rank'>34</td><td>Ubatuba</td><td class='num'>1.720</td><td class='num'>0.7%</td></tr><tr><td class='rank'>35</td><td>Check-Up</td><td class='num'>1.300</td><td class='num'>0.5%</td></tr><tr><td class='rank'>36</td><td>Hortolândia</td><td class='num'>810</td><td class='num'>0.3%</td></tr><tr><td class='rank'>37</td><td>São Roque</td><td class='num'>670</td><td class='num'>0.3%</td></tr><tr><td class='rank'>38</td><td>Votorantim</td><td class='num'>630</td><td class='num'>0.3%</td></tr><tr><td class='rank'>39</td><td>Santa Bárbara D'Oeste</td><td class='num'>120</td><td class='num'>0.0%</td></tr></tbody>
+      </table>
+    </section>
+
+    <!-- TAB 2: ESTADOS -->
+    <section class="tab-panel" id="tab-estados">
+      <div class="hero">
+        <div>
+          <div class="label">Estado com maior volume de buscas</div>
+          <div class="city">SP — São Paulo</div>
+          <div class="total">Total: 178.750 (73.8% do total)</div>
+        </div>
+        <span class="badge">#1 UF</span>
+      </div>
+      <h2>Ranking de Estados por Volume Total</h2>
+      <div class="summary-grid">
+        <div class="stat"><div class="k">Estados</div><div class="v">10</div></div>
+        <div class="stat"><div class="k">Líder</div><div class="v">SP</div></div>
+        <div class="stat"><div class="k">Volume do líder</div><div class="v">178.750</div></div>
+        <div class="stat"><div class="k">Share</div><div class="v">73.8%</div></div>
+      </div>
+      <table>
+        <thead><tr><th>#</th><th>Estado</th><th class='num'>Cidades</th><th class='num'>Volume</th><th class='num'>Share</th></tr></thead>
+        <tbody><tr><td class='rank'>1</td><td><span class='uf'>SP</span> São Paulo</td><td class='num'>28</td><td class='num'>178.750</td><td class='num'>73.8%</td></tr><tr><td class='rank'>2</td><td><span class='uf'>MG</span> Minas Gerais</td><td class='num'>2</td><td class='num'>17.850</td><td class='num'>7.4%</td></tr><tr><td class='rank'>3</td><td><span class='uf'>PI</span> Piauí</td><td class='num'>1</td><td class='num'>9.570</td><td class='num'>3.9%</td></tr><tr><td class='rank'>4</td><td><span class='uf'>DF</span> Distrito Federal</td><td class='num'>1</td><td class='num'>8.410</td><td class='num'>3.5%</td></tr><tr><td class='rank'>5</td><td><span class='uf'>ES</span> Espírito Santo</td><td class='num'>2</td><td class='num'>7.730</td><td class='num'>3.2%</td></tr><tr><td class='rank'>6</td><td><span class='uf'>TO</span> Tocantins</td><td class='num'>1</td><td class='num'>5.820</td><td class='num'>2.4%</td></tr><tr><td class='rank'>7</td><td><span class='uf'>CE</span> Ceará</td><td class='num'>1</td><td class='num'>5.240</td><td class='num'>2.2%</td></tr><tr><td class='rank'>8</td><td><span class='uf'>RJ</span> Rio de Janeiro</td><td class='num'>1</td><td class='num'>4.990</td><td class='num'>2.1%</td></tr><tr><td class='rank'>9</td><td><span class='uf'>BA</span> Bahia</td><td class='num'>1</td><td class='num'>2.670</td><td class='num'>1.1%</td></tr><tr><td class='rank'>10</td><td><span class='uf'>—</span> Sem estado (categoria genérica)</td><td class='num'>1</td><td class='num'>1.300</td><td class='num'>0.5%</td></tr></tbody>
+      </table>
+
+      <h2 style="margin-top: 30px;">Cidades agrupadas por estado</h2>
+      <div class="filter-bar">
+        <label for="ufFilter">Filtrar por estado:</label>
+        <select id="ufFilter" onchange="filtrarUF(this.value)">
+          <option value="ALL">Todos os estados</option>
+          <option value="SP">SP — São Paulo</option><option value="MG">MG — Minas Gerais</option><option value="PI">PI — Piauí</option><option value="DF">DF — Distrito Federal</option><option value="ES">ES — Espírito Santo</option><option value="TO">TO — Tocantins</option><option value="CE">CE — Ceará</option><option value="RJ">RJ — Rio de Janeiro</option><option value="BA">BA — Bahia</option><option value="—">— — Sem estado (categoria genérica)</option>
+        </select>
+      </div>
+      <div id="stateList">
+        
+        <details class="city-card">
+          <summary>
+            <span class="uf">SP</span>
+            <span class="city-name">São Paulo</span>
+            <span class="city-total">28 cidade(s) · Total: <strong>178.750</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Cidade</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>São Paulo</td><td class='num'>30.170</td></tr><tr><td>Sorocaba</td><td class='num'>22.250</td></tr><tr><td>Campinas</td><td class='num'>18.910</td></tr><tr><td>Guarulhos</td><td class='num'>9.690</td></tr><tr><td>Piracicaba</td><td class='num'>9.190</td></tr><tr><td>Santos</td><td class='num'>9.010</td></tr><tr><td>Jundiaí</td><td class='num'>8.810</td></tr><tr><td>Osasco</td><td class='num'>8.150</td></tr><tr><td>Bauru</td><td class='num'>6.800</td></tr><tr><td>Indaiatuba</td><td class='num'>6.190</td></tr><tr><td>Itapetininga</td><td class='num'>5.650</td></tr><tr><td>Americana</td><td class='num'>5.490</td></tr><tr><td>Ribeirão Preto</td><td class='num'>5.060</td></tr><tr><td>Limeira</td><td class='num'>4.550</td></tr><tr><td>Praia Grande</td><td class='num'>4.330</td></tr><tr><td>Mogi Guaçu</td><td class='num'>4.200</td></tr><tr><td>Rio Claro</td><td class='num'>3.640</td></tr><tr><td>Sumaré</td><td class='num'>2.570</td></tr><tr><td>Itu</td><td class='num'>2.240</td></tr><tr><td>Itatiba</td><td class='num'>2.130</td></tr><tr><td>Itapevi</td><td class='num'>1.970</td></tr><tr><td>Barueri</td><td class='num'>1.940</td></tr><tr><td>Tatuí</td><td class='num'>1.860</td></tr><tr><td>Ubatuba</td><td class='num'>1.720</td></tr><tr><td>Hortolândia</td><td class='num'>810</td></tr><tr><td>São Roque</td><td class='num'>670</td></tr><tr><td>Votorantim</td><td class='num'>630</td></tr><tr><td>Santa Bárbara D'Oeste</td><td class='num'>120</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card">
+          <summary>
+            <span class="uf">MG</span>
+            <span class="city-name">Minas Gerais</span>
+            <span class="city-total">2 cidade(s) · Total: <strong>17.850</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Cidade</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Belo Horizonte</td><td class='num'>13.870</td></tr><tr><td>Patos de Minas</td><td class='num'>3.980</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card">
+          <summary>
+            <span class="uf">PI</span>
+            <span class="city-name">Piauí</span>
+            <span class="city-total">1 cidade(s) · Total: <strong>9.570</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Cidade</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Teresina</td><td class='num'>9.570</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card">
+          <summary>
+            <span class="uf">DF</span>
+            <span class="city-name">Distrito Federal</span>
+            <span class="city-total">1 cidade(s) · Total: <strong>8.410</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Cidade</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Taguatinga</td><td class='num'>8.410</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card">
+          <summary>
+            <span class="uf">ES</span>
+            <span class="city-name">Espírito Santo</span>
+            <span class="city-total">2 cidade(s) · Total: <strong>7.730</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Cidade</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Vila Velha</td><td class='num'>5.320</td></tr><tr><td>Linhares</td><td class='num'>2.410</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card">
+          <summary>
+            <span class="uf">TO</span>
+            <span class="city-name">Tocantins</span>
+            <span class="city-total">1 cidade(s) · Total: <strong>5.820</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Cidade</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Palmas</td><td class='num'>5.820</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card">
+          <summary>
+            <span class="uf">CE</span>
+            <span class="city-name">Ceará</span>
+            <span class="city-total">1 cidade(s) · Total: <strong>5.240</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Cidade</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Juazeiro do Norte</td><td class='num'>5.240</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card">
+          <summary>
+            <span class="uf">RJ</span>
+            <span class="city-name">Rio de Janeiro</span>
+            <span class="city-total">1 cidade(s) · Total: <strong>4.990</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Cidade</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Campos dos Goytacazes</td><td class='num'>4.990</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card">
+          <summary>
+            <span class="uf">BA</span>
+            <span class="city-name">Bahia</span>
+            <span class="city-total">1 cidade(s) · Total: <strong>2.670</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Cidade</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Vitória da Conquista</td><td class='num'>2.670</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card">
+          <summary>
+            <span class="uf">—</span>
+            <span class="city-name">Sem estado (categoria genérica)</span>
+            <span class="city-total">1 cidade(s) · Total: <strong>1.300</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Cidade</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Check-Up</td><td class='num'>1.300</td></tr></tbody>
+          </table>
+        </details>
+        
+      </div>
+    </section>
+
+    <!-- TAB 3: SERVIÇOS -->
+    <section class="tab-panel" id="tab-servicos">
+      <div class="hero">
+        <div>
+          <div class="label">Serviço mais buscado (total Brasil)</div>
+          <div class="city">Oftalmologia</div>
+          <div class="total">Total: 31.210 (12.9% do total)</div>
+        </div>
+        <span class="badge">#1 Serviço</span>
+      </div>
+      <h2>Total de buscas por serviço — independente de cidade/estado</h2>
+      <div class="summary-grid">
+        <div class="stat"><div class="k">Serviços classificados</div><div class="v">40</div></div>
+        <div class="stat"><div class="k">Mais buscado</div><div class="v">Oftalmologia</div></div>
+        <div class="stat"><div class="k">Volume do líder</div><div class="v">31.210</div></div>
+        <div class="stat"><div class="k">Volume total</div><div class="v">242.330</div></div>
+      </div>
+      <div class="filter-bar">
+        <label for="serviceSearch">Buscar serviço:</label>
+        <input type="text" id="serviceSearch" placeholder="Digite ex.: Oftalmologia" oninput="filtrarServico(this.value)">
+      </div>
+      <table id="serviceTable">
+        <thead>
+          <tr>
+            <th>#</th><th>Serviço</th>
+            <th class='num'>Volume Total</th>
+            <th class='num'>Share</th>
+            <th class='num'>Palavras-chave</th>
+            <th>Distribuição</th>
+          </tr>
+        </thead>
+        <tbody><tr><td class='rank'>1</td><td>Oftalmologia</td><td class='num'>31.210</td><td class='num'>12.9%</td><td class='num'>74</td><td><div class='bar'><div class='bar-fill' style='width:100.0%'></div></div></td></tr><tr><td class='rank'>2</td><td>Urologia</td><td class='num'>29.090</td><td class='num'>12.0%</td><td class='num'>110</td><td><div class='bar'><div class='bar-fill' style='width:93.2%'></div></div></td></tr><tr><td class='rank'>3</td><td>Dermatologia</td><td class='num'>23.100</td><td class='num'>9.5%</td><td class='num'>57</td><td><div class='bar'><div class='bar-fill' style='width:74.0%'></div></div></td></tr><tr><td class='rank'>4</td><td>Psiquiatria</td><td class='num'>16.020</td><td class='num'>6.6%</td><td class='num'>60</td><td><div class='bar'><div class='bar-fill' style='width:51.3%'></div></div></td></tr><tr><td class='rank'>5</td><td>Clínica/Centro Médico</td><td class='num'>15.980</td><td class='num'>6.6%</td><td class='num'>38</td><td><div class='bar'><div class='bar-fill' style='width:51.2%'></div></div></td></tr><tr><td class='rank'>6</td><td>Endocrinologia</td><td class='num'>14.880</td><td class='num'>6.1%</td><td class='num'>51</td><td><div class='bar'><div class='bar-fill' style='width:47.7%'></div></div></td></tr><tr><td class='rank'>7</td><td>Ultrassom</td><td class='num'>13.660</td><td class='num'>5.6%</td><td class='num'>82</td><td><div class='bar'><div class='bar-fill' style='width:43.8%'></div></div></td></tr><tr><td class='rank'>8</td><td>Ortopedia</td><td class='num'>13.500</td><td class='num'>5.6%</td><td class='num'>63</td><td><div class='bar'><div class='bar-fill' style='width:43.3%'></div></div></td></tr><tr><td class='rank'>9</td><td>Cardiologia</td><td class='num'>13.460</td><td class='num'>5.6%</td><td class='num'>62</td><td><div class='bar'><div class='bar-fill' style='width:43.1%'></div></div></td></tr><tr><td class='rank'>10</td><td>Pneumologia</td><td class='num'>7.120</td><td class='num'>2.9%</td><td class='num'>39</td><td><div class='bar'><div class='bar-fill' style='width:22.8%'></div></div></td></tr><tr><td class='rank'>11</td><td>Pediatria</td><td class='num'>4.960</td><td class='num'>2.0%</td><td class='num'>34</td><td><div class='bar'><div class='bar-fill' style='width:15.9%'></div></div></td></tr><tr><td class='rank'>12</td><td>Proctologia</td><td class='num'>4.540</td><td class='num'>1.9%</td><td class='num'>29</td><td><div class='bar'><div class='bar-fill' style='width:14.5%'></div></div></td></tr><tr><td class='rank'>13</td><td>Reumatologia</td><td class='num'>4.330</td><td class='num'>1.8%</td><td class='num'>31</td><td><div class='bar'><div class='bar-fill' style='width:13.9%'></div></div></td></tr><tr><td class='rank'>14</td><td>Gastroenterologia</td><td class='num'>4.100</td><td class='num'>1.7%</td><td class='num'>35</td><td><div class='bar'><div class='bar-fill' style='width:13.1%'></div></div></td></tr><tr><td class='rank'>15</td><td>Acupuntura</td><td class='num'>3.860</td><td class='num'>1.6%</td><td class='num'>35</td><td><div class='bar'><div class='bar-fill' style='width:12.4%'></div></div></td></tr><tr><td class='rank'>16</td><td>Clínica Popular</td><td class='num'>3.670</td><td class='num'>1.5%</td><td class='num'>28</td><td><div class='bar'><div class='bar-fill' style='width:11.8%'></div></div></td></tr><tr><td class='rank'>17</td><td>Fonoaudiologia</td><td class='num'>3.360</td><td class='num'>1.4%</td><td class='num'>31</td><td><div class='bar'><div class='bar-fill' style='width:10.8%'></div></div></td></tr><tr><td class='rank'>18</td><td>Psicologia</td><td class='num'>2.830</td><td class='num'>1.2%</td><td class='num'>24</td><td><div class='bar'><div class='bar-fill' style='width:9.1%'></div></div></td></tr><tr><td class='rank'>19</td><td>Nutrologia/Nutrição</td><td class='num'>2.810</td><td class='num'>1.2%</td><td class='num'>23</td><td><div class='bar'><div class='bar-fill' style='width:9.0%'></div></div></td></tr><tr><td class='rank'>20</td><td>Ressonância Magnética</td><td class='num'>2.800</td><td class='num'>1.2%</td><td class='num'>26</td><td><div class='bar'><div class='bar-fill' style='width:9.0%'></div></div></td></tr><tr><td class='rank'>21</td><td>Laboratório / Exames</td><td class='num'>2.590</td><td class='num'>1.1%</td><td class='num'>9</td><td><div class='bar'><div class='bar-fill' style='width:8.3%'></div></div></td></tr><tr><td class='rank'>22</td><td>Exame Toxicológico</td><td class='num'>2.410</td><td class='num'>1.0%</td><td class='num'>29</td><td><div class='bar'><div class='bar-fill' style='width:7.7%'></div></div></td></tr><tr><td class='rank'>23</td><td>Nefrologia</td><td class='num'>2.390</td><td class='num'>1.0%</td><td class='num'>29</td><td><div class='bar'><div class='bar-fill' style='width:7.7%'></div></div></td></tr><tr><td class='rank'>24</td><td>Otorrinolaringologia</td><td class='num'>2.260</td><td class='num'>0.9%</td><td class='num'>17</td><td><div class='bar'><div class='bar-fill' style='width:7.2%'></div></div></td></tr><tr><td class='rank'>25</td><td>Mastologia</td><td class='num'>2.130</td><td class='num'>0.9%</td><td class='num'>29</td><td><div class='bar'><div class='bar-fill' style='width:6.8%'></div></div></td></tr><tr><td class='rank'>26</td><td>Raio X</td><td class='num'>2.020</td><td class='num'>0.8%</td><td class='num'>23</td><td><div class='bar'><div class='bar-fill' style='width:6.5%'></div></div></td></tr><tr><td class='rank'>27</td><td>Geriatria</td><td class='num'>1.980</td><td class='num'>0.8%</td><td class='num'>26</td><td><div class='bar'><div class='bar-fill' style='width:6.3%'></div></div></td></tr><tr><td class='rank'>28</td><td>Endoscopia</td><td class='num'>1.620</td><td class='num'>0.7%</td><td class='num'>18</td><td><div class='bar'><div class='bar-fill' style='width:5.2%'></div></div></td></tr><tr><td class='rank'>29</td><td>Colonoscopia</td><td class='num'>1.530</td><td class='num'>0.6%</td><td class='num'>26</td><td><div class='bar'><div class='bar-fill' style='width:4.9%'></div></div></td></tr><tr><td class='rank'>30</td><td>Alergologia</td><td class='num'>1.410</td><td class='num'>0.6%</td><td class='num'>13</td><td><div class='bar'><div class='bar-fill' style='width:4.5%'></div></div></td></tr><tr><td class='rank'>31</td><td>Infectologia</td><td class='num'>1.320</td><td class='num'>0.5%</td><td class='num'>18</td><td><div class='bar'><div class='bar-fill' style='width:4.2%'></div></div></td></tr><tr><td class='rank'>32</td><td>Check-Up</td><td class='num'>1.300</td><td class='num'>0.5%</td><td class='num'>9</td><td><div class='bar'><div class='bar-fill' style='width:4.2%'></div></div></td></tr><tr><td class='rank'>33</td><td>Angiologia</td><td class='num'>980</td><td class='num'>0.4%</td><td class='num'>10</td><td><div class='bar'><div class='bar-fill' style='width:3.1%'></div></div></td></tr><tr><td class='rank'>34</td><td>Hepatologia</td><td class='num'>820</td><td class='num'>0.3%</td><td class='num'>13</td><td><div class='bar'><div class='bar-fill' style='width:2.6%'></div></div></td></tr><tr><td class='rank'>35</td><td>Clínico Geral</td><td class='num'>630</td><td class='num'>0.3%</td><td class='num'>13</td><td><div class='bar'><div class='bar-fill' style='width:2.0%'></div></div></td></tr><tr><td class='rank'>36</td><td>Oncologia</td><td class='num'>570</td><td class='num'>0.2%</td><td class='num'>11</td><td><div class='bar'><div class='bar-fill' style='width:1.8%'></div></div></td></tr><tr><td class='rank'>37</td><td>Outros</td><td class='num'>440</td><td class='num'>0.2%</td><td class='num'>3</td><td><div class='bar'><div class='bar-fill' style='width:1.4%'></div></div></td></tr><tr><td class='rank'>38</td><td>Homeopatia</td><td class='num'>320</td><td class='num'>0.1%</td><td class='num'>4</td><td><div class='bar'><div class='bar-fill' style='width:1.0%'></div></div></td></tr><tr><td class='rank'>39</td><td>Mamografia</td><td class='num'>310</td><td class='num'>0.1%</td><td class='num'>7</td><td><div class='bar'><div class='bar-fill' style='width:1.0%'></div></div></td></tr><tr><td class='rank'>40</td><td>Espirometria</td><td class='num'>20</td><td class='num'>0.0%</td><td class='num'>1</td><td><div class='bar'><div class='bar-fill' style='width:0.1%'></div></div></td></tr></tbody>
+      </table>
+    </section>
+
+    <!-- TAB 4: SERVIÇOS POR CIDADE -->
+    <section class="tab-panel" id="tab-servicos-cidade">
+      <h2>Serviços por cidade — ordenados por volume de busca</h2>
+      <p style="color: var(--muted); margin-top:-6px; font-size: 14px;">
+        Clique em uma cidade para expandir ou recolher os serviços.
+      </p>
+      <div class="filter-bar">
+        <label for="citySearch">Buscar cidade:</label>
+        <input type="text" id="citySearch" placeholder="Digite o nome da cidade" oninput="filtrarCidade(this.value)">
+      </div>
+      <div id="cityList">
+        
+        <details class="city-card" open>
+          <summary>
+            <span class="city-name">São Paulo</span>
+            <span class="city-total">Total: <strong>30.170</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Serviço</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Oftalmologia</td><td class='num'>5.880</td></tr><tr><td>Dermatologia</td><td class='num'>4.680</td></tr><tr><td>Psiquiatria</td><td class='num'>3.210</td></tr><tr><td>Urologia</td><td class='num'>2.900</td></tr><tr><td>Endocrinologia</td><td class='num'>1.600</td></tr><tr><td>Cardiologia</td><td class='num'>1.300</td></tr><tr><td>Pediatria</td><td class='num'>1.200</td></tr><tr><td>Pneumologia</td><td class='num'>1.090</td></tr><tr><td>Ortopedia</td><td class='num'>880</td></tr><tr><td>Otorrinolaringologia</td><td class='num'>880</td></tr><tr><td>Reumatologia</td><td class='num'>680</td></tr><tr><td>Gastroenterologia</td><td class='num'>590</td></tr><tr><td>Acupuntura</td><td class='num'>480</td></tr><tr><td>Exame Toxicológico</td><td class='num'>480</td></tr><tr><td>Proctologia</td><td class='num'>480</td></tr><tr><td>Nefrologia</td><td class='num'>390</td></tr><tr><td>Ressonância Magnética</td><td class='num'>390</td></tr><tr><td>Geriatria</td><td class='num'>390</td></tr><tr><td>Clínico Geral</td><td class='num'>260</td></tr><tr><td>Mastologia</td><td class='num'>260</td></tr><tr><td>Oncologia</td><td class='num'>230</td></tr><tr><td>Colonoscopia</td><td class='num'>210</td></tr><tr><td>Psicologia</td><td class='num'>210</td></tr><tr><td>Ultrassom</td><td class='num'>210</td></tr><tr><td>Clínica/Centro Médico</td><td class='num'>170</td></tr><tr><td>Clínica Popular</td><td class='num'>170</td></tr><tr><td>Hepatologia</td><td class='num'>170</td></tr><tr><td>Nutrologia/Nutrição</td><td class='num'>170</td></tr><tr><td>Fonoaudiologia</td><td class='num'>140</td></tr><tr><td>Angiologia</td><td class='num'>110</td></tr><tr><td>Endoscopia</td><td class='num'>110</td></tr><tr><td>Raio X</td><td class='num'>90</td></tr><tr><td>Mamografia</td><td class='num'>70</td></tr><tr><td>Infectologia</td><td class='num'>50</td></tr><tr><td>Alergologia</td><td class='num'>40</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card" open>
+          <summary>
+            <span class="city-name">Sorocaba</span>
+            <span class="city-total">Total: <strong>22.250</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Serviço</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Clínica/Centro Médico</td><td class='num'>8.310</td></tr><tr><td>Urologia</td><td class='num'>2.600</td></tr><tr><td>Oftalmologia</td><td class='num'>1.310</td></tr><tr><td>Dermatologia</td><td class='num'>1.300</td></tr><tr><td>Psiquiatria</td><td class='num'>990</td></tr><tr><td>Ortopedia</td><td class='num'>930</td></tr><tr><td>Cardiologia</td><td class='num'>730</td></tr><tr><td>Endocrinologia</td><td class='num'>720</td></tr><tr><td>Pneumologia</td><td class='num'>480</td></tr><tr><td>Psicologia</td><td class='num'>470</td></tr><tr><td>Gastroenterologia</td><td class='num'>460</td></tr><tr><td>Alergologia</td><td class='num'>390</td></tr><tr><td>Ultrassom</td><td class='num'>390</td></tr><tr><td>Acupuntura</td><td class='num'>320</td></tr><tr><td>Clínica Popular</td><td class='num'>320</td></tr><tr><td>Fonoaudiologia</td><td class='num'>320</td></tr><tr><td>Proctologia</td><td class='num'>320</td></tr><tr><td>Reumatologia</td><td class='num'>260</td></tr><tr><td>Endoscopia</td><td class='num'>210</td></tr><tr><td>Nefrologia</td><td class='num'>210</td></tr><tr><td>Pediatria</td><td class='num'>210</td></tr><tr><td>Ressonância Magnética</td><td class='num'>210</td></tr><tr><td>Colonoscopia</td><td class='num'>170</td></tr><tr><td>Exame Toxicológico</td><td class='num'>170</td></tr><tr><td>Geriatria</td><td class='num'>170</td></tr><tr><td>Mastologia</td><td class='num'>170</td></tr><tr><td>Nutrologia/Nutrição</td><td class='num'>110</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card" open>
+          <summary>
+            <span class="city-name">Campinas</span>
+            <span class="city-total">Total: <strong>18.910</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Serviço</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Clínica/Centro Médico</td><td class='num'>4.610</td></tr><tr><td>Oftalmologia</td><td class='num'>2.100</td></tr><tr><td>Ultrassom</td><td class='num'>1.920</td></tr><tr><td>Psiquiatria</td><td class='num'>1.780</td></tr><tr><td>Dermatologia</td><td class='num'>1.600</td></tr><tr><td>Urologia</td><td class='num'>1.420</td></tr><tr><td>Endocrinologia</td><td class='num'>1.140</td></tr><tr><td>Cardiologia</td><td class='num'>890</td></tr><tr><td>Clínica Popular</td><td class='num'>720</td></tr><tr><td>Alergologia</td><td class='num'>320</td></tr><tr><td>Fonoaudiologia</td><td class='num'>320</td></tr><tr><td>Nutrologia/Nutrição</td><td class='num'>320</td></tr><tr><td>Acupuntura</td><td class='num'>260</td></tr><tr><td>Mastologia</td><td class='num'>260</td></tr><tr><td>Raio X</td><td class='num'>260</td></tr><tr><td>Exame Toxicológico</td><td class='num'>170</td></tr><tr><td>Proctologia</td><td class='num'>170</td></tr><tr><td>Geriatria</td><td class='num'>110</td></tr><tr><td>Endoscopia</td><td class='num'>90</td></tr><tr><td>Colonoscopia</td><td class='num'>90</td></tr><tr><td>Homeopatia</td><td class='num'>90</td></tr><tr><td>Infectologia</td><td class='num'>90</td></tr><tr><td>Ortopedia</td><td class='num'>90</td></tr><tr><td>Pneumologia</td><td class='num'>90</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card" open>
+          <summary>
+            <span class="city-name">Belo Horizonte</span>
+            <span class="city-total">Total: <strong>13.870</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Serviço</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Urologia</td><td class='num'>2.040</td></tr><tr><td>Ultrassom</td><td class='num'>1.760</td></tr><tr><td>Oftalmologia</td><td class='num'>1.680</td></tr><tr><td>Psiquiatria</td><td class='num'>1.000</td></tr><tr><td>Endocrinologia</td><td class='num'>930</td></tr><tr><td>Dermatologia</td><td class='num'>880</td></tr><tr><td>Ressonância Magnética</td><td class='num'>880</td></tr><tr><td>Cardiologia</td><td class='num'>810</td></tr><tr><td>Ortopedia</td><td class='num'>590</td></tr><tr><td>Raio X</td><td class='num'>510</td></tr><tr><td>Nutrologia/Nutrição</td><td class='num'>480</td></tr><tr><td>Gastroenterologia</td><td class='num'>420</td></tr><tr><td>Infectologia</td><td class='num'>390</td></tr><tr><td>Endoscopia</td><td class='num'>260</td></tr><tr><td>Reumatologia</td><td class='num'>260</td></tr><tr><td>Acupuntura</td><td class='num'>210</td></tr><tr><td>Fonoaudiologia</td><td class='num'>210</td></tr><tr><td>Outros</td><td class='num'>140</td></tr><tr><td>Colonoscopia</td><td class='num'>110</td></tr><tr><td>Mamografia</td><td class='num'>110</td></tr><tr><td>Nefrologia</td><td class='num'>110</td></tr><tr><td>Alergologia</td><td class='num'>90</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card" open>
+          <summary>
+            <span class="city-name">Guarulhos</span>
+            <span class="city-total">Total: <strong>9.690</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Serviço</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Oftalmologia</td><td class='num'>1.300</td></tr><tr><td>Urologia</td><td class='num'>1.300</td></tr><tr><td>Dermatologia</td><td class='num'>1.000</td></tr><tr><td>Ortopedia</td><td class='num'>970</td></tr><tr><td>Psiquiatria</td><td class='num'>720</td></tr><tr><td>Endocrinologia</td><td class='num'>680</td></tr><tr><td>Cardiologia</td><td class='num'>570</td></tr><tr><td>Acupuntura</td><td class='num'>320</td></tr><tr><td>Pediatria</td><td class='num'>320</td></tr><tr><td>Ultrassom</td><td class='num'>320</td></tr><tr><td>Exame Toxicológico</td><td class='num'>260</td></tr><tr><td>Pneumologia</td><td class='num'>260</td></tr><tr><td>Fonoaudiologia</td><td class='num'>210</td></tr><tr><td>Proctologia</td><td class='num'>210</td></tr><tr><td>Gastroenterologia</td><td class='num'>170</td></tr><tr><td>Ressonância Magnética</td><td class='num'>170</td></tr><tr><td>Clínica/Centro Médico</td><td class='num'>110</td></tr><tr><td>Colonoscopia</td><td class='num'>110</td></tr><tr><td>Endoscopia</td><td class='num'>110</td></tr><tr><td>Mastologia</td><td class='num'>110</td></tr><tr><td>Nefrologia</td><td class='num'>110</td></tr><tr><td>Nutrologia/Nutrição</td><td class='num'>110</td></tr><tr><td>Clínica Popular</td><td class='num'>90</td></tr><tr><td>Raio X</td><td class='num'>90</td></tr><tr><td>Geriatria</td><td class='num'>70</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card" open>
+          <summary>
+            <span class="city-name">Teresina</span>
+            <span class="city-total">Total: <strong>9.570</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Serviço</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Laboratório / Exames</td><td class='num'>1.300</td></tr><tr><td>Urologia</td><td class='num'>970</td></tr><tr><td>Oftalmologia</td><td class='num'>780</td></tr><tr><td>Ortopedia</td><td class='num'>680</td></tr><tr><td>Pneumologia</td><td class='num'>640</td></tr><tr><td>Psiquiatria</td><td class='num'>640</td></tr><tr><td>Cardiologia</td><td class='num'>570</td></tr><tr><td>Dermatologia</td><td class='num'>480</td></tr><tr><td>Endocrinologia</td><td class='num'>480</td></tr><tr><td>Pediatria</td><td class='num'>320</td></tr><tr><td>Reumatologia</td><td class='num'>320</td></tr><tr><td>Geriatria</td><td class='num'>320</td></tr><tr><td>Proctologia</td><td class='num'>260</td></tr><tr><td>Outros</td><td class='num'>210</td></tr><tr><td>Nutrologia/Nutrição</td><td class='num'>210</td></tr><tr><td>Gastroenterologia</td><td class='num'>210</td></tr><tr><td>Angiologia</td><td class='num'>170</td></tr><tr><td>Fonoaudiologia</td><td class='num'>170</td></tr><tr><td>Nefrologia</td><td class='num'>170</td></tr><tr><td>Infectologia</td><td class='num'>140</td></tr><tr><td>Mastologia</td><td class='num'>140</td></tr><tr><td>Acupuntura</td><td class='num'>110</td></tr><tr><td>Hepatologia</td><td class='num'>110</td></tr><tr><td>Exame Toxicológico</td><td class='num'>90</td></tr><tr><td>Clínica Popular</td><td class='num'>40</td></tr><tr><td>Ultrassom</td><td class='num'>40</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card" open>
+          <summary>
+            <span class="city-name">Piracicaba</span>
+            <span class="city-total">Total: <strong>9.190</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Serviço</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Urologia</td><td class='num'>1.360</td></tr><tr><td>Oftalmologia</td><td class='num'>1.020</td></tr><tr><td>Ultrassom</td><td class='num'>960</td></tr><tr><td>Dermatologia</td><td class='num'>880</td></tr><tr><td>Endocrinologia</td><td class='num'>720</td></tr><tr><td>Cardiologia</td><td class='num'>700</td></tr><tr><td>Psiquiatria</td><td class='num'>520</td></tr><tr><td>Ortopedia</td><td class='num'>390</td></tr><tr><td>Fonoaudiologia</td><td class='num'>310</td></tr><tr><td>Pneumologia</td><td class='num'>260</td></tr><tr><td>Pediatria</td><td class='num'>220</td></tr><tr><td>Reumatologia</td><td class='num'>220</td></tr><tr><td>Acupuntura</td><td class='num'>170</td></tr><tr><td>Gastroenterologia</td><td class='num'>170</td></tr><tr><td>Otorrinolaringologia</td><td class='num'>170</td></tr><tr><td>Proctologia</td><td class='num'>170</td></tr><tr><td>Exame Toxicológico</td><td class='num'>160</td></tr><tr><td>Nutrologia/Nutrição</td><td class='num'>140</td></tr><tr><td>Nefrologia</td><td class='num'>110</td></tr><tr><td>Geriatria</td><td class='num'>90</td></tr><tr><td>Outros</td><td class='num'>90</td></tr><tr><td>Infectologia</td><td class='num'>90</td></tr><tr><td>Alergologia</td><td class='num'>70</td></tr><tr><td>Clínica/Centro Médico</td><td class='num'>70</td></tr><tr><td>Mamografia</td><td class='num'>50</td></tr><tr><td>Hepatologia</td><td class='num'>40</td></tr><tr><td>Homeopatia</td><td class='num'>40</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card" open>
+          <summary>
+            <span class="city-name">Santos</span>
+            <span class="city-total">Total: <strong>9.010</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Serviço</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Urologia</td><td class='num'>1.770</td></tr><tr><td>Oftalmologia</td><td class='num'>1.050</td></tr><tr><td>Ortopedia</td><td class='num'>890</td></tr><tr><td>Cardiologia</td><td class='num'>680</td></tr><tr><td>Dermatologia</td><td class='num'>680</td></tr><tr><td>Endocrinologia</td><td class='num'>590</td></tr><tr><td>Proctologia</td><td class='num'>480</td></tr><tr><td>Ultrassom</td><td class='num'>430</td></tr><tr><td>Pneumologia</td><td class='num'>410</td></tr><tr><td>Reumatologia</td><td class='num'>260</td></tr><tr><td>Raio X</td><td class='num'>210</td></tr><tr><td>Psicologia</td><td class='num'>180</td></tr><tr><td>Ressonância Magnética</td><td class='num'>180</td></tr><tr><td>Homeopatia</td><td class='num'>170</td></tr><tr><td>Acupuntura</td><td class='num'>140</td></tr><tr><td>Nutrologia/Nutrição</td><td class='num'>140</td></tr><tr><td>Gastroenterologia</td><td class='num'>110</td></tr><tr><td>Clínica/Centro Médico</td><td class='num'>90</td></tr><tr><td>Mastologia</td><td class='num'>90</td></tr><tr><td>Oncologia</td><td class='num'>90</td></tr><tr><td>Exame Toxicológico</td><td class='num'>70</td></tr><tr><td>Geriatria</td><td class='num'>70</td></tr><tr><td>Infectologia</td><td class='num'>70</td></tr><tr><td>Psiquiatria</td><td class='num'>70</td></tr><tr><td>Nefrologia</td><td class='num'>50</td></tr><tr><td>Clínica Popular</td><td class='num'>40</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card" open>
+          <summary>
+            <span class="city-name">Jundiaí</span>
+            <span class="city-total">Total: <strong>8.810</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Serviço</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Dermatologia</td><td class='num'>1.370</td></tr><tr><td>Oftalmologia</td><td class='num'>1.210</td></tr><tr><td>Clínica Popular</td><td class='num'>1.000</td></tr><tr><td>Cardiologia</td><td class='num'>780</td></tr><tr><td>Psiquiatria</td><td class='num'>590</td></tr><tr><td>Endocrinologia</td><td class='num'>550</td></tr><tr><td>Urologia</td><td class='num'>550</td></tr><tr><td>Ultrassom</td><td class='num'>480</td></tr><tr><td>Acupuntura</td><td class='num'>260</td></tr><tr><td>Pneumologia</td><td class='num'>260</td></tr><tr><td>Proctologia</td><td class='num'>210</td></tr><tr><td>Gastroenterologia</td><td class='num'>170</td></tr><tr><td>Nutrologia/Nutrição</td><td class='num'>170</td></tr><tr><td>Psicologia</td><td class='num'>170</td></tr><tr><td>Pediatria</td><td class='num'>140</td></tr><tr><td>Exame Toxicológico</td><td class='num'>110</td></tr><tr><td>Fonoaudiologia</td><td class='num'>110</td></tr><tr><td>Nefrologia</td><td class='num'>110</td></tr><tr><td>Raio X</td><td class='num'>110</td></tr><tr><td>Reumatologia</td><td class='num'>110</td></tr><tr><td>Clínica/Centro Médico</td><td class='num'>90</td></tr><tr><td>Ortopedia</td><td class='num'>90</td></tr><tr><td>Geriatria</td><td class='num'>70</td></tr><tr><td>Hepatologia</td><td class='num'>50</td></tr><tr><td>Oncologia</td><td class='num'>50</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card" open>
+          <summary>
+            <span class="city-name">Taguatinga</span>
+            <span class="city-total">Total: <strong>8.410</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Serviço</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Ortopedia</td><td class='num'>1.110</td></tr><tr><td>Laboratório / Exames</td><td class='num'>740</td></tr><tr><td>Dermatologia</td><td class='num'>720</td></tr><tr><td>Oftalmologia</td><td class='num'>620</td></tr><tr><td>Urologia</td><td class='num'>580</td></tr><tr><td>Clínica Popular</td><td class='num'>560</td></tr><tr><td>Endocrinologia</td><td class='num'>550</td></tr><tr><td>Psiquiatria</td><td class='num'>390</td></tr><tr><td>Cardiologia</td><td class='num'>390</td></tr><tr><td>Pneumologia</td><td class='num'>260</td></tr><tr><td>Endoscopia</td><td class='num'>240</td></tr><tr><td>Pediatria</td><td class='num'>210</td></tr><tr><td>Proctologia</td><td class='num'>210</td></tr><tr><td>Reumatologia</td><td class='num'>210</td></tr><tr><td>Colonoscopia</td><td class='num'>200</td></tr><tr><td>Alergologia</td><td class='num'>170</td></tr><tr><td>Ressonância Magnética</td><td class='num'>170</td></tr><tr><td>Angiologia</td><td class='num'>140</td></tr><tr><td>Psicologia</td><td class='num'>110</td></tr><tr><td>Fonoaudiologia</td><td class='num'>110</td></tr><tr><td>Gastroenterologia</td><td class='num'>110</td></tr><tr><td>Clínica/Centro Médico</td><td class='num'>90</td></tr><tr><td>Mastologia</td><td class='num'>90</td></tr><tr><td>Raio X</td><td class='num'>90</td></tr><tr><td>Ultrassom</td><td class='num'>90</td></tr><tr><td>Acupuntura</td><td class='num'>50</td></tr><tr><td>Geriatria</td><td class='num'>50</td></tr><tr><td>Clínico Geral</td><td class='num'>30</td></tr><tr><td>Nutrologia/Nutrição</td><td class='num'>30</td></tr><tr><td>Oncologia</td><td class='num'>30</td></tr><tr><td>Espirometria</td><td class='num'>20</td></tr><tr><td>Exame Toxicológico</td><td class='num'>20</td></tr><tr><td>Mamografia</td><td class='num'>20</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card" open>
+          <summary>
+            <span class="city-name">Osasco</span>
+            <span class="city-total">Total: <strong>8.150</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Serviço</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Oftalmologia</td><td class='num'>2.110</td></tr><tr><td>Urologia</td><td class='num'>1.030</td></tr><tr><td>Ultrassom</td><td class='num'>570</td></tr><tr><td>Cardiologia</td><td class='num'>430</td></tr><tr><td>Psicologia</td><td class='num'>400</td></tr><tr><td>Ortopedia</td><td class='num'>390</td></tr><tr><td>Dermatologia</td><td class='num'>340</td></tr><tr><td>Reumatologia</td><td class='num'>280</td></tr><tr><td>Endoscopia</td><td class='num'>260</td></tr><tr><td>Pediatria</td><td class='num'>260</td></tr><tr><td>Endocrinologia</td><td class='num'>250</td></tr><tr><td>Pneumologia</td><td class='num'>210</td></tr><tr><td>Ressonância Magnética</td><td class='num'>210</td></tr><tr><td>Acupuntura</td><td class='num'>190</td></tr><tr><td>Clínica/Centro Médico</td><td class='num'>170</td></tr><tr><td>Raio X</td><td class='num'>170</td></tr><tr><td>Exame Toxicológico</td><td class='num'>140</td></tr><tr><td>Laboratório / Exames</td><td class='num'>110</td></tr><tr><td>Nefrologia</td><td class='num'>90</td></tr><tr><td>Nutrologia/Nutrição</td><td class='num'>90</td></tr><tr><td>Oncologia</td><td class='num'>70</td></tr><tr><td>Clínica Popular</td><td class='num'>50</td></tr><tr><td>Psiquiatria</td><td class='num'>50</td></tr><tr><td>Colonoscopia</td><td class='num'>50</td></tr><tr><td>Gastroenterologia</td><td class='num'>50</td></tr><tr><td>Hepatologia</td><td class='num'>50</td></tr><tr><td>Mastologia</td><td class='num'>50</td></tr><tr><td>Clínico Geral</td><td class='num'>40</td></tr><tr><td>Homeopatia</td><td class='num'>20</td></tr><tr><td>Fonoaudiologia</td><td class='num'>20</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card" open>
+          <summary>
+            <span class="city-name">Bauru</span>
+            <span class="city-total">Total: <strong>6.800</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Serviço</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Oftalmologia</td><td class='num'>950</td></tr><tr><td>Urologia</td><td class='num'>920</td></tr><tr><td>Ultrassom</td><td class='num'>650</td></tr><tr><td>Psiquiatria</td><td class='num'>590</td></tr><tr><td>Dermatologia</td><td class='num'>570</td></tr><tr><td>Ortopedia</td><td class='num'>490</td></tr><tr><td>Endocrinologia</td><td class='num'>480</td></tr><tr><td>Cardiologia</td><td class='num'>390</td></tr><tr><td>Pneumologia</td><td class='num'>260</td></tr><tr><td>Psicologia</td><td class='num'>260</td></tr><tr><td>Proctologia</td><td class='num'>210</td></tr><tr><td>Geriatria</td><td class='num'>160</td></tr><tr><td>Acupuntura</td><td class='num'>140</td></tr><tr><td>Fonoaudiologia</td><td class='num'>140</td></tr><tr><td>Reumatologia</td><td class='num'>140</td></tr><tr><td>Otorrinolaringologia</td><td class='num'>110</td></tr><tr><td>Exame Toxicológico</td><td class='num'>90</td></tr><tr><td>Gastroenterologia</td><td class='num'>90</td></tr><tr><td>Mastologia</td><td class='num'>90</td></tr><tr><td>Clínica Popular</td><td class='num'>70</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card" open>
+          <summary>
+            <span class="city-name">Indaiatuba</span>
+            <span class="city-total">Total: <strong>6.190</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Serviço</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Clínica/Centro Médico</td><td class='num'>950</td></tr><tr><td>Oftalmologia</td><td class='num'>840</td></tr><tr><td>Endocrinologia</td><td class='num'>680</td></tr><tr><td>Urologia</td><td class='num'>640</td></tr><tr><td>Ultrassom</td><td class='num'>590</td></tr><tr><td>Cardiologia</td><td class='num'>390</td></tr><tr><td>Dermatologia</td><td class='num'>320</td></tr><tr><td>Ortopedia</td><td class='num'>320</td></tr><tr><td>Psiquiatria</td><td class='num'>320</td></tr><tr><td>Pneumologia</td><td class='num'>170</td></tr><tr><td>Gastroenterologia</td><td class='num'>140</td></tr><tr><td>Acupuntura</td><td class='num'>110</td></tr><tr><td>Nutrologia/Nutrição</td><td class='num'>110</td></tr><tr><td>Pediatria</td><td class='num'>110</td></tr><tr><td>Nefrologia</td><td class='num'>90</td></tr><tr><td>Raio X</td><td class='num'>90</td></tr><tr><td>Exame Toxicológico</td><td class='num'>50</td></tr><tr><td>Mastologia</td><td class='num'>50</td></tr><tr><td>Alergologia</td><td class='num'>40</td></tr><tr><td>Clínico Geral</td><td class='num'>40</td></tr><tr><td>Geriatria</td><td class='num'>40</td></tr><tr><td>Infectologia</td><td class='num'>40</td></tr><tr><td>Clínica Popular</td><td class='num'>30</td></tr><tr><td>Hepatologia</td><td class='num'>30</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card" open>
+          <summary>
+            <span class="city-name">Palmas</span>
+            <span class="city-total">Total: <strong>5.820</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Serviço</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Urologia</td><td class='num'>1.070</td></tr><tr><td>Dermatologia</td><td class='num'>590</td></tr><tr><td>Endocrinologia</td><td class='num'>520</td></tr><tr><td>Cardiologia</td><td class='num'>380</td></tr><tr><td>Psicologia</td><td class='num'>340</td></tr><tr><td>Pneumologia</td><td class='num'>320</td></tr><tr><td>Psiquiatria</td><td class='num'>320</td></tr><tr><td>Oftalmologia</td><td class='num'>240</td></tr><tr><td>Proctologia</td><td class='num'>210</td></tr><tr><td>Reumatologia</td><td class='num'>210</td></tr><tr><td>Pediatria</td><td class='num'>190</td></tr><tr><td>Fonoaudiologia</td><td class='num'>140</td></tr><tr><td>Mastologia</td><td class='num'>140</td></tr><tr><td>Nutrologia/Nutrição</td><td class='num'>140</td></tr><tr><td>Ortopedia</td><td class='num'>120</td></tr><tr><td>Hepatologia</td><td class='num'>110</td></tr><tr><td>Infectologia</td><td class='num'>110</td></tr><tr><td>Nefrologia</td><td class='num'>110</td></tr><tr><td>Angiologia</td><td class='num'>90</td></tr><tr><td>Gastroenterologia</td><td class='num'>70</td></tr><tr><td>Geriatria</td><td class='num'>70</td></tr><tr><td>Raio X</td><td class='num'>70</td></tr><tr><td>Ressonância Magnética</td><td class='num'>70</td></tr><tr><td>Clínica/Centro Médico</td><td class='num'>50</td></tr><tr><td>Colonoscopia</td><td class='num'>30</td></tr><tr><td>Ultrassom</td><td class='num'>30</td></tr><tr><td>Acupuntura</td><td class='num'>20</td></tr><tr><td>Oncologia</td><td class='num'>20</td></tr><tr><td>Clínica Popular</td><td class='num'>20</td></tr><tr><td>Clínico Geral</td><td class='num'>20</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card" open>
+          <summary>
+            <span class="city-name">Itapetininga</span>
+            <span class="city-total">Total: <strong>5.650</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Serviço</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Oftalmologia</td><td class='num'>1.020</td></tr><tr><td>Ortopedia</td><td class='num'>770</td></tr><tr><td>Urologia</td><td class='num'>760</td></tr><tr><td>Dermatologia</td><td class='num'>590</td></tr><tr><td>Cardiologia</td><td class='num'>320</td></tr><tr><td>Endocrinologia</td><td class='num'>320</td></tr><tr><td>Psiquiatria</td><td class='num'>260</td></tr><tr><td>Ultrassom</td><td class='num'>160</td></tr><tr><td>Pediatria</td><td class='num'>140</td></tr><tr><td>Pneumologia</td><td class='num'>140</td></tr><tr><td>Reumatologia</td><td class='num'>140</td></tr><tr><td>Colonoscopia</td><td class='num'>120</td></tr><tr><td>Otorrinolaringologia</td><td class='num'>110</td></tr><tr><td>Nefrologia</td><td class='num'>100</td></tr><tr><td>Endoscopia</td><td class='num'>90</td></tr><tr><td>Proctologia</td><td class='num'>90</td></tr><tr><td>Fonoaudiologia</td><td class='num'>90</td></tr><tr><td>Gastroenterologia</td><td class='num'>70</td></tr><tr><td>Ressonância Magnética</td><td class='num'>70</td></tr><tr><td>Mastologia</td><td class='num'>60</td></tr><tr><td>Clínico Geral</td><td class='num'>40</td></tr><tr><td>Clínica/Centro Médico</td><td class='num'>30</td></tr><tr><td>Exame Toxicológico</td><td class='num'>30</td></tr><tr><td>Geriatria</td><td class='num'>30</td></tr><tr><td>Alergologia</td><td class='num'>20</td></tr><tr><td>Hepatologia</td><td class='num'>20</td></tr><tr><td>Infectologia</td><td class='num'>20</td></tr><tr><td>Mamografia</td><td class='num'>20</td></tr><tr><td>Oncologia</td><td class='num'>20</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card" open>
+          <summary>
+            <span class="city-name">Americana</span>
+            <span class="city-total">Total: <strong>5.490</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Serviço</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Urologia</td><td class='num'>990</td></tr><tr><td>Oftalmologia</td><td class='num'>660</td></tr><tr><td>Dermatologia</td><td class='num'>630</td></tr><tr><td>Ortopedia</td><td class='num'>530</td></tr><tr><td>Cardiologia</td><td class='num'>410</td></tr><tr><td>Endocrinologia</td><td class='num'>390</td></tr><tr><td>Psiquiatria</td><td class='num'>370</td></tr><tr><td>Pneumologia</td><td class='num'>260</td></tr><tr><td>Ultrassom</td><td class='num'>170</td></tr><tr><td>Clínica/Centro Médico</td><td class='num'>140</td></tr><tr><td>Endoscopia</td><td class='num'>110</td></tr><tr><td>Fonoaudiologia</td><td class='num'>110</td></tr><tr><td>Pediatria</td><td class='num'>110</td></tr><tr><td>Gastroenterologia</td><td class='num'>90</td></tr><tr><td>Mastologia</td><td class='num'>90</td></tr><tr><td>Otorrinolaringologia</td><td class='num'>90</td></tr><tr><td>Proctologia</td><td class='num'>90</td></tr><tr><td>Acupuntura</td><td class='num'>70</td></tr><tr><td>Nefrologia</td><td class='num'>50</td></tr><tr><td>Reumatologia</td><td class='num'>50</td></tr><tr><td>Raio X</td><td class='num'>40</td></tr><tr><td>Ressonância Magnética</td><td class='num'>40</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card" open>
+          <summary>
+            <span class="city-name">Vila Velha</span>
+            <span class="city-total">Total: <strong>5.320</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Serviço</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Urologia</td><td class='num'>640</td></tr><tr><td>Dermatologia</td><td class='num'>610</td></tr><tr><td>Oftalmologia</td><td class='num'>450</td></tr><tr><td>Endocrinologia</td><td class='num'>390</td></tr><tr><td>Ultrassom</td><td class='num'>390</td></tr><tr><td>Psiquiatria</td><td class='num'>320</td></tr><tr><td>Cardiologia</td><td class='num'>280</td></tr><tr><td>Pediatria</td><td class='num'>280</td></tr><tr><td>Ortopedia</td><td class='num'>260</td></tr><tr><td>Clínica/Centro Médico</td><td class='num'>220</td></tr><tr><td>Pneumologia</td><td class='num'>210</td></tr><tr><td>Proctologia</td><td class='num'>170</td></tr><tr><td>Acupuntura</td><td class='num'>110</td></tr><tr><td>Clínica Popular</td><td class='num'>110</td></tr><tr><td>Otorrinolaringologia</td><td class='num'>110</td></tr><tr><td>Angiologia</td><td class='num'>90</td></tr><tr><td>Nutrologia/Nutrição</td><td class='num'>90</td></tr><tr><td>Reumatologia</td><td class='num'>90</td></tr><tr><td>Colonoscopia</td><td class='num'>70</td></tr><tr><td>Raio X</td><td class='num'>70</td></tr><tr><td>Psicologia</td><td class='num'>70</td></tr><tr><td>Exame Toxicológico</td><td class='num'>50</td></tr><tr><td>Gastroenterologia</td><td class='num'>50</td></tr><tr><td>Clínico Geral</td><td class='num'>40</td></tr><tr><td>Hepatologia</td><td class='num'>40</td></tr><tr><td>Geriatria</td><td class='num'>30</td></tr><tr><td>Infectologia</td><td class='num'>30</td></tr><tr><td>Nefrologia</td><td class='num'>30</td></tr><tr><td>Mastologia</td><td class='num'>20</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card" open>
+          <summary>
+            <span class="city-name">Juazeiro do Norte</span>
+            <span class="city-total">Total: <strong>5.240</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Serviço</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Urologia</td><td class='num'>890</td></tr><tr><td>Oftalmologia</td><td class='num'>480</td></tr><tr><td>Ortopedia</td><td class='num'>480</td></tr><tr><td>Dermatologia</td><td class='num'>420</td></tr><tr><td>Psiquiatria</td><td class='num'>360</td></tr><tr><td>Cardiologia</td><td class='num'>350</td></tr><tr><td>Endocrinologia</td><td class='num'>320</td></tr><tr><td>Pneumologia</td><td class='num'>210</td></tr><tr><td>Proctologia</td><td class='num'>210</td></tr><tr><td>Reumatologia</td><td class='num'>210</td></tr><tr><td>Ultrassom</td><td class='num'>210</td></tr><tr><td>Fonoaudiologia</td><td class='num'>170</td></tr><tr><td>Pediatria</td><td class='num'>170</td></tr><tr><td>Gastroenterologia</td><td class='num'>140</td></tr><tr><td>Alergologia</td><td class='num'>110</td></tr><tr><td>Mastologia</td><td class='num'>110</td></tr><tr><td>Nutrologia/Nutrição</td><td class='num'>90</td></tr><tr><td>Otorrinolaringologia</td><td class='num'>90</td></tr><tr><td>Infectologia</td><td class='num'>70</td></tr><tr><td>Colonoscopia</td><td class='num'>50</td></tr><tr><td>Acupuntura</td><td class='num'>20</td></tr><tr><td>Angiologia</td><td class='num'>20</td></tr><tr><td>Clínica/Centro Médico</td><td class='num'>20</td></tr><tr><td>Clínica Popular</td><td class='num'>20</td></tr><tr><td>Clínico Geral</td><td class='num'>20</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card" open>
+          <summary>
+            <span class="city-name">Ribeirão Preto</span>
+            <span class="city-total">Total: <strong>5.060</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Serviço</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Ultrassom</td><td class='num'>760</td></tr><tr><td>Urologia</td><td class='num'>620</td></tr><tr><td>Dermatologia</td><td class='num'>430</td></tr><tr><td>Ortopedia</td><td class='num'>430</td></tr><tr><td>Oftalmologia</td><td class='num'>420</td></tr><tr><td>Endocrinologia</td><td class='num'>410</td></tr><tr><td>Psiquiatria</td><td class='num'>370</td></tr><tr><td>Cardiologia</td><td class='num'>370</td></tr><tr><td>Pneumologia</td><td class='num'>220</td></tr><tr><td>Reumatologia</td><td class='num'>210</td></tr><tr><td>Clínica Popular</td><td class='num'>140</td></tr><tr><td>Fonoaudiologia</td><td class='num'>140</td></tr><tr><td>Ressonância Magnética</td><td class='num'>100</td></tr><tr><td>Acupuntura</td><td class='num'>90</td></tr><tr><td>Nutrologia/Nutrição</td><td class='num'>90</td></tr><tr><td>Colonoscopia</td><td class='num'>70</td></tr><tr><td>Gastroenterologia</td><td class='num'>70</td></tr><tr><td>Nefrologia</td><td class='num'>70</td></tr><tr><td>Infectologia</td><td class='num'>50</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card" open>
+          <summary>
+            <span class="city-name">Campos dos Goytacazes</span>
+            <span class="city-total">Total: <strong>4.990</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Serviço</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Urologia</td><td class='num'>980</td></tr><tr><td>Oftalmologia</td><td class='num'>460</td></tr><tr><td>Psiquiatria</td><td class='num'>450</td></tr><tr><td>Dermatologia</td><td class='num'>440</td></tr><tr><td>Endocrinologia</td><td class='num'>370</td></tr><tr><td>Cardiologia</td><td class='num'>310</td></tr><tr><td>Ortopedia</td><td class='num'>300</td></tr><tr><td>Pneumologia</td><td class='num'>210</td></tr><tr><td>Proctologia</td><td class='num'>210</td></tr><tr><td>Angiologia</td><td class='num'>170</td></tr><tr><td>Reumatologia</td><td class='num'>140</td></tr><tr><td>Pediatria</td><td class='num'>110</td></tr><tr><td>Gastroenterologia</td><td class='num'>90</td></tr><tr><td>Hepatologia</td><td class='num'>90</td></tr><tr><td>Nefrologia</td><td class='num'>90</td></tr><tr><td>Fonoaudiologia</td><td class='num'>70</td></tr><tr><td>Mastologia</td><td class='num'>70</td></tr><tr><td>Nutrologia/Nutrição</td><td class='num'>70</td></tr><tr><td>Ultrassom</td><td class='num'>60</td></tr><tr><td>Clínico Geral</td><td class='num'>50</td></tr><tr><td>Exame Toxicológico</td><td class='num'>50</td></tr><tr><td>Acupuntura</td><td class='num'>40</td></tr><tr><td>Geriatria</td><td class='num'>40</td></tr><tr><td>Infectologia</td><td class='num'>40</td></tr><tr><td>Clínica/Centro Médico</td><td class='num'>30</td></tr><tr><td>Clínica Popular</td><td class='num'>30</td></tr><tr><td>Colonoscopia</td><td class='num'>20</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card" open>
+          <summary>
+            <span class="city-name">Limeira</span>
+            <span class="city-total">Total: <strong>4.550</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Serviço</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Oftalmologia</td><td class='num'>740</td></tr><tr><td>Urologia</td><td class='num'>530</td></tr><tr><td>Ultrassom</td><td class='num'>460</td></tr><tr><td>Dermatologia</td><td class='num'>390</td></tr><tr><td>Endocrinologia</td><td class='num'>320</td></tr><tr><td>Ortopedia</td><td class='num'>310</td></tr><tr><td>Psiquiatria</td><td class='num'>260</td></tr><tr><td>Cardiologia</td><td class='num'>210</td></tr><tr><td>Pneumologia</td><td class='num'>140</td></tr><tr><td>Acupuntura</td><td class='num'>110</td></tr><tr><td>Otorrinolaringologia</td><td class='num'>90</td></tr><tr><td>Proctologia</td><td class='num'>90</td></tr><tr><td>Alergologia</td><td class='num'>70</td></tr><tr><td>Fonoaudiologia</td><td class='num'>70</td></tr><tr><td>Gastroenterologia</td><td class='num'>70</td></tr><tr><td>Geriatria</td><td class='num'>70</td></tr><tr><td>Nutrologia/Nutrição</td><td class='num'>70</td></tr><tr><td>Pediatria</td><td class='num'>70</td></tr><tr><td>Reumatologia</td><td class='num'>70</td></tr><tr><td>Clínica/Centro Médico</td><td class='num'>60</td></tr><tr><td>Colonoscopia</td><td class='num'>50</td></tr><tr><td>Exame Toxicológico</td><td class='num'>50</td></tr><tr><td>Nefrologia</td><td class='num'>50</td></tr><tr><td>Psicologia</td><td class='num'>50</td></tr><tr><td>Raio X</td><td class='num'>50</td></tr><tr><td>Laboratório / Exames</td><td class='num'>30</td></tr><tr><td>Mastologia</td><td class='num'>30</td></tr><tr><td>Clínica Popular</td><td class='num'>20</td></tr><tr><td>Mamografia</td><td class='num'>20</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card" open>
+          <summary>
+            <span class="city-name">Praia Grande</span>
+            <span class="city-total">Total: <strong>4.330</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Serviço</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Oftalmologia</td><td class='num'>720</td></tr><tr><td>Ultrassom</td><td class='num'>580</td></tr><tr><td>Dermatologia</td><td class='num'>480</td></tr><tr><td>Urologia</td><td class='num'>470</td></tr><tr><td>Psiquiatria</td><td class='num'>350</td></tr><tr><td>Endocrinologia</td><td class='num'>260</td></tr><tr><td>Ortopedia</td><td class='num'>240</td></tr><tr><td>Cardiologia</td><td class='num'>170</td></tr><tr><td>Ressonância Magnética</td><td class='num'>140</td></tr><tr><td>Acupuntura</td><td class='num'>110</td></tr><tr><td>Pediatria</td><td class='num'>110</td></tr><tr><td>Exame Toxicológico</td><td class='num'>90</td></tr><tr><td>Gastroenterologia</td><td class='num'>70</td></tr><tr><td>Nefrologia</td><td class='num'>70</td></tr><tr><td>Pneumologia</td><td class='num'>70</td></tr><tr><td>Proctologia</td><td class='num'>70</td></tr><tr><td>Psicologia</td><td class='num'>70</td></tr><tr><td>Clínica/Centro Médico</td><td class='num'>50</td></tr><tr><td>Clínica Popular</td><td class='num'>50</td></tr><tr><td>Fonoaudiologia</td><td class='num'>50</td></tr><tr><td>Raio X</td><td class='num'>50</td></tr><tr><td>Mastologia</td><td class='num'>40</td></tr><tr><td>Geriatria</td><td class='num'>20</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card" open>
+          <summary>
+            <span class="city-name">Mogi Guaçu</span>
+            <span class="city-total">Total: <strong>4.200</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Serviço</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Urologia</td><td class='num'>710</td></tr><tr><td>Oftalmologia</td><td class='num'>590</td></tr><tr><td>Cardiologia</td><td class='num'>390</td></tr><tr><td>Endocrinologia</td><td class='num'>390</td></tr><tr><td>Dermatologia</td><td class='num'>320</td></tr><tr><td>Ortopedia</td><td class='num'>320</td></tr><tr><td>Psiquiatria</td><td class='num'>260</td></tr><tr><td>Ultrassom</td><td class='num'>220</td></tr><tr><td>Pediatria</td><td class='num'>170</td></tr><tr><td>Pneumologia</td><td class='num'>140</td></tr><tr><td>Gastroenterologia</td><td class='num'>90</td></tr><tr><td>Fonoaudiologia</td><td class='num'>70</td></tr><tr><td>Otorrinolaringologia</td><td class='num'>70</td></tr><tr><td>Proctologia</td><td class='num'>70</td></tr><tr><td>Reumatologia</td><td class='num'>70</td></tr><tr><td>Nefrologia</td><td class='num'>50</td></tr><tr><td>Psicologia</td><td class='num'>50</td></tr><tr><td>Geriatria</td><td class='num'>40</td></tr><tr><td>Mastologia</td><td class='num'>40</td></tr><tr><td>Infectologia</td><td class='num'>30</td></tr><tr><td>Ressonância Magnética</td><td class='num'>30</td></tr><tr><td>Acupuntura</td><td class='num'>20</td></tr><tr><td>Clínica/Centro Médico</td><td class='num'>20</td></tr><tr><td>Clínica Popular</td><td class='num'>20</td></tr><tr><td>Nutrologia/Nutrição</td><td class='num'>20</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card" open>
+          <summary>
+            <span class="city-name">Patos de Minas</span>
+            <span class="city-total">Total: <strong>3.980</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Serviço</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Urologia</td><td class='num'>580</td></tr><tr><td>Dermatologia</td><td class='num'>530</td></tr><tr><td>Endocrinologia</td><td class='num'>390</td></tr><tr><td>Oftalmologia</td><td class='num'>340</td></tr><tr><td>Psiquiatria</td><td class='num'>280</td></tr><tr><td>Ortopedia</td><td class='num'>210</td></tr><tr><td>Ultrassom</td><td class='num'>190</td></tr><tr><td>Cardiologia</td><td class='num'>170</td></tr><tr><td>Gastroenterologia</td><td class='num'>170</td></tr><tr><td>Pediatria</td><td class='num'>140</td></tr><tr><td>Reumatologia</td><td class='num'>140</td></tr><tr><td>Angiologia</td><td class='num'>110</td></tr><tr><td>Nutrologia/Nutrição</td><td class='num'>110</td></tr><tr><td>Pneumologia</td><td class='num'>110</td></tr><tr><td>Proctologia</td><td class='num'>110</td></tr><tr><td>Nefrologia</td><td class='num'>90</td></tr><tr><td>Otorrinolaringologia</td><td class='num'>50</td></tr><tr><td>Geriatria</td><td class='num'>40</td></tr><tr><td>Hepatologia</td><td class='num'>40</td></tr><tr><td>Mastologia</td><td class='num'>40</td></tr><tr><td>Acupuntura</td><td class='num'>20</td></tr><tr><td>Oncologia</td><td class='num'>20</td></tr><tr><td>Clínico Geral</td><td class='num'>20</td></tr><tr><td>Colonoscopia</td><td class='num'>20</td></tr><tr><td>Endoscopia</td><td class='num'>20</td></tr><tr><td>Exame Toxicológico</td><td class='num'>20</td></tr><tr><td>Infectologia</td><td class='num'>20</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card" open>
+          <summary>
+            <span class="city-name">Rio Claro</span>
+            <span class="city-total">Total: <strong>3.640</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Serviço</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Oftalmologia</td><td class='num'>630</td></tr><tr><td>Urologia</td><td class='num'>470</td></tr><tr><td>Dermatologia</td><td class='num'>320</td></tr><tr><td>Ortopedia</td><td class='num'>290</td></tr><tr><td>Cardiologia</td><td class='num'>260</td></tr><tr><td>Endocrinologia</td><td class='num'>260</td></tr><tr><td>Ultrassom</td><td class='num'>230</td></tr><tr><td>Clínica/Centro Médico</td><td class='num'>170</td></tr><tr><td>Psiquiatria</td><td class='num'>170</td></tr><tr><td>Otorrinolaringologia</td><td class='num'>140</td></tr><tr><td>Pneumologia</td><td class='num'>110</td></tr><tr><td>Proctologia</td><td class='num'>90</td></tr><tr><td>Fonoaudiologia</td><td class='num'>70</td></tr><tr><td>Gastroenterologia</td><td class='num'>70</td></tr><tr><td>Pediatria</td><td class='num'>70</td></tr><tr><td>Reumatologia</td><td class='num'>50</td></tr><tr><td>Acupuntura</td><td class='num'>50</td></tr><tr><td>Nefrologia</td><td class='num'>40</td></tr><tr><td>Clínico Geral</td><td class='num'>30</td></tr><tr><td>Colonoscopia</td><td class='num'>30</td></tr><tr><td>Geriatria</td><td class='num'>30</td></tr><tr><td>Mastologia</td><td class='num'>30</td></tr><tr><td>Ressonância Magnética</td><td class='num'>30</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card" open>
+          <summary>
+            <span class="city-name">Vitória da Conquista</span>
+            <span class="city-total">Total: <strong>2.670</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Serviço</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Urologia</td><td class='num'>450</td></tr><tr><td>Dermatologia</td><td class='num'>200</td></tr><tr><td>Cardiologia</td><td class='num'>200</td></tr><tr><td>Ortopedia</td><td class='num'>200</td></tr><tr><td>Oftalmologia</td><td class='num'>200</td></tr><tr><td>Pneumologia</td><td class='num'>200</td></tr><tr><td>Psiquiatria</td><td class='num'>180</td></tr><tr><td>Endocrinologia</td><td class='num'>160</td></tr><tr><td>Proctologia</td><td class='num'>130</td></tr><tr><td>Gastroenterologia</td><td class='num'>90</td></tr><tr><td>Reumatologia</td><td class='num'>70</td></tr><tr><td>Ultrassom</td><td class='num'>70</td></tr><tr><td>Pediatria</td><td class='num'>60</td></tr><tr><td>Alergologia</td><td class='num'>50</td></tr><tr><td>Hepatologia</td><td class='num'>50</td></tr><tr><td>Mastologia</td><td class='num'>50</td></tr><tr><td>Nefrologia</td><td class='num'>40</td></tr><tr><td>Oncologia</td><td class='num'>40</td></tr><tr><td>Ressonância Magnética</td><td class='num'>40</td></tr><tr><td>Angiologia</td><td class='num'>30</td></tr><tr><td>Geriatria</td><td class='num'>30</td></tr><tr><td>Clínico Geral</td><td class='num'>20</td></tr><tr><td>Endoscopia</td><td class='num'>20</td></tr><tr><td>Exame Toxicológico</td><td class='num'>20</td></tr><tr><td>Fonoaudiologia</td><td class='num'>20</td></tr><tr><td>Mamografia</td><td class='num'>20</td></tr><tr><td>Raio X</td><td class='num'>20</td></tr><tr><td>Nutrologia/Nutrição</td><td class='num'>10</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card" open>
+          <summary>
+            <span class="city-name">Sumaré</span>
+            <span class="city-total">Total: <strong>2.570</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Serviço</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Oftalmologia</td><td class='num'>390</td></tr><tr><td>Urologia</td><td class='num'>330</td></tr><tr><td>Dermatologia</td><td class='num'>310</td></tr><tr><td>Ortopedia</td><td class='num'>260</td></tr><tr><td>Ultrassom</td><td class='num'>260</td></tr><tr><td>Cardiologia</td><td class='num'>200</td></tr><tr><td>Endocrinologia</td><td class='num'>190</td></tr><tr><td>Psiquiatria</td><td class='num'>140</td></tr><tr><td>Gastroenterologia</td><td class='num'>90</td></tr><tr><td>Pediatria</td><td class='num'>70</td></tr><tr><td>Acupuntura</td><td class='num'>40</td></tr><tr><td>Fonoaudiologia</td><td class='num'>40</td></tr><tr><td>Pneumologia</td><td class='num'>40</td></tr><tr><td>Reumatologia</td><td class='num'>40</td></tr><tr><td>Clínica/Centro Médico</td><td class='num'>30</td></tr><tr><td>Alergologia</td><td class='num'>20</td></tr><tr><td>Psicologia</td><td class='num'>20</td></tr><tr><td>Clínica Popular</td><td class='num'>20</td></tr><tr><td>Colonoscopia</td><td class='num'>20</td></tr><tr><td>Exame Toxicológico</td><td class='num'>20</td></tr><tr><td>Nefrologia</td><td class='num'>20</td></tr><tr><td>Raio X</td><td class='num'>20</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card" open>
+          <summary>
+            <span class="city-name">Linhares</span>
+            <span class="city-total">Total: <strong>2.410</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Serviço</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Urologia</td><td class='num'>340</td></tr><tr><td>Dermatologia</td><td class='num'>320</td></tr><tr><td>Oftalmologia</td><td class='num'>260</td></tr><tr><td>Endocrinologia</td><td class='num'>210</td></tr><tr><td>Ultrassom</td><td class='num'>200</td></tr><tr><td>Cardiologia</td><td class='num'>140</td></tr><tr><td>Ortopedia</td><td class='num'>140</td></tr><tr><td>Proctologia</td><td class='num'>110</td></tr><tr><td>Psiquiatria</td><td class='num'>110</td></tr><tr><td>Otorrinolaringologia</td><td class='num'>90</td></tr><tr><td>Pneumologia</td><td class='num'>90</td></tr><tr><td>Gastroenterologia</td><td class='num'>70</td></tr><tr><td>Angiologia</td><td class='num'>50</td></tr><tr><td>Nefrologia</td><td class='num'>50</td></tr><tr><td>Fonoaudiologia</td><td class='num'>40</td></tr><tr><td>Infectologia</td><td class='num'>40</td></tr><tr><td>Pediatria</td><td class='num'>40</td></tr><tr><td>Mastologia</td><td class='num'>30</td></tr><tr><td>Clínica Popular</td><td class='num'>20</td></tr><tr><td>Clínica/Centro Médico</td><td class='num'>20</td></tr><tr><td>Colonoscopia</td><td class='num'>20</td></tr><tr><td>Nutrologia/Nutrição</td><td class='num'>20</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card" open>
+          <summary>
+            <span class="city-name">Itu</span>
+            <span class="city-total">Total: <strong>2.240</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Serviço</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Oftalmologia</td><td class='num'>390</td></tr><tr><td>Dermatologia</td><td class='num'>340</td></tr><tr><td>Cardiologia</td><td class='num'>170</td></tr><tr><td>Urologia</td><td class='num'>170</td></tr><tr><td>Endocrinologia</td><td class='num'>140</td></tr><tr><td>Ortopedia</td><td class='num'>140</td></tr><tr><td>Ultrassom</td><td class='num'>120</td></tr><tr><td>Pneumologia</td><td class='num'>90</td></tr><tr><td>Acupuntura</td><td class='num'>70</td></tr><tr><td>Fonoaudiologia</td><td class='num'>70</td></tr><tr><td>Otorrinolaringologia</td><td class='num'>70</td></tr><tr><td>Pediatria</td><td class='num'>70</td></tr><tr><td>Psiquiatria</td><td class='num'>70</td></tr><tr><td>Clínica/Centro Médico</td><td class='num'>70</td></tr><tr><td>Proctologia</td><td class='num'>50</td></tr><tr><td>Reumatologia</td><td class='num'>50</td></tr><tr><td>Exame Toxicológico</td><td class='num'>30</td></tr><tr><td>Psicologia</td><td class='num'>30</td></tr><tr><td>Alergologia</td><td class='num'>20</td></tr><tr><td>Clínica Popular</td><td class='num'>20</td></tr><tr><td>Colonoscopia</td><td class='num'>20</td></tr><tr><td>Infectologia</td><td class='num'>20</td></tr><tr><td>Nefrologia</td><td class='num'>20</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card" open>
+          <summary>
+            <span class="city-name">Itatiba</span>
+            <span class="city-total">Total: <strong>2.130</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Serviço</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Laboratório / Exames</td><td class='num'>390</td></tr><tr><td>Oftalmologia</td><td class='num'>340</td></tr><tr><td>Dermatologia</td><td class='num'>210</td></tr><tr><td>Urologia</td><td class='num'>200</td></tr><tr><td>Endocrinologia</td><td class='num'>170</td></tr><tr><td>Ortopedia</td><td class='num'>140</td></tr><tr><td>Psiquiatria</td><td class='num'>140</td></tr><tr><td>Cardiologia</td><td class='num'>110</td></tr><tr><td>Acupuntura</td><td class='num'>50</td></tr><tr><td>Pediatria</td><td class='num'>50</td></tr><tr><td>Pneumologia</td><td class='num'>50</td></tr><tr><td>Exame Toxicológico</td><td class='num'>30</td></tr><tr><td>Gastroenterologia</td><td class='num'>30</td></tr><tr><td>Psicologia</td><td class='num'>30</td></tr><tr><td>Clínica Popular</td><td class='num'>20</td></tr><tr><td>Endoscopia</td><td class='num'>20</td></tr><tr><td>Geriatria</td><td class='num'>20</td></tr><tr><td>Mastologia</td><td class='num'>20</td></tr><tr><td>Nefrologia</td><td class='num'>20</td></tr><tr><td>Proctologia</td><td class='num'>20</td></tr><tr><td>Raio X</td><td class='num'>20</td></tr><tr><td>Ressonância Magnética</td><td class='num'>20</td></tr><tr><td>Ultrassom</td><td class='num'>20</td></tr><tr><td>Colonoscopia</td><td class='num'>10</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card" open>
+          <summary>
+            <span class="city-name">Itapevi</span>
+            <span class="city-total">Total: <strong>1.970</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Serviço</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Ultrassom</td><td class='num'>430</td></tr><tr><td>Oftalmologia</td><td class='num'>320</td></tr><tr><td>Dermatologia</td><td class='num'>260</td></tr><tr><td>Clínica/Centro Médico</td><td class='num'>250</td></tr><tr><td>Urologia</td><td class='num'>140</td></tr><tr><td>Psiquiatria</td><td class='num'>110</td></tr><tr><td>Fonoaudiologia</td><td class='num'>70</td></tr><tr><td>Otorrinolaringologia</td><td class='num'>70</td></tr><tr><td>Endocrinologia</td><td class='num'>50</td></tr><tr><td>Ortopedia</td><td class='num'>50</td></tr><tr><td>Acupuntura</td><td class='num'>40</td></tr><tr><td>Exame Toxicológico</td><td class='num'>40</td></tr><tr><td>Proctologia</td><td class='num'>30</td></tr><tr><td>Clínica Popular</td><td class='num'>20</td></tr><tr><td>Endoscopia</td><td class='num'>20</td></tr><tr><td>Raio X</td><td class='num'>20</td></tr><tr><td>Ressonância Magnética</td><td class='num'>20</td></tr><tr><td>Colonoscopia</td><td class='num'>10</td></tr><tr><td>Gastroenterologia</td><td class='num'>10</td></tr><tr><td>Mastologia</td><td class='num'>10</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card" open>
+          <summary>
+            <span class="city-name">Barueri</span>
+            <span class="city-total">Total: <strong>1.940</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Serviço</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Oftalmologia</td><td class='num'>590</td></tr><tr><td>Dermatologia</td><td class='num'>340</td></tr><tr><td>Psiquiatria</td><td class='num'>180</td></tr><tr><td>Ultrassom</td><td class='num'>180</td></tr><tr><td>Acupuntura</td><td class='num'>140</td></tr><tr><td>Psicologia</td><td class='num'>140</td></tr><tr><td>Exame Toxicológico</td><td class='num'>70</td></tr><tr><td>Clínica/Centro Médico</td><td class='num'>40</td></tr><tr><td>Pediatria</td><td class='num'>40</td></tr><tr><td>Clínica Popular</td><td class='num'>30</td></tr><tr><td>Urologia</td><td class='num'>30</td></tr><tr><td>Endoscopia</td><td class='num'>20</td></tr><tr><td>Laboratório / Exames</td><td class='num'>20</td></tr><tr><td>Hepatologia</td><td class='num'>20</td></tr><tr><td>Mastologia</td><td class='num'>20</td></tr><tr><td>Nutrologia/Nutrição</td><td class='num'>20</td></tr><tr><td>Colonoscopia</td><td class='num'>20</td></tr><tr><td>Otorrinolaringologia</td><td class='num'>20</td></tr><tr><td>Raio X</td><td class='num'>20</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card" open>
+          <summary>
+            <span class="city-name">Tatuí</span>
+            <span class="city-total">Total: <strong>1.860</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Serviço</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Oftalmologia</td><td class='num'>260</td></tr><tr><td>Psiquiatria</td><td class='num'>220</td></tr><tr><td>Urologia</td><td class='num'>220</td></tr><tr><td>Dermatologia</td><td class='num'>210</td></tr><tr><td>Ortopedia</td><td class='num'>140</td></tr><tr><td>Ultrassom</td><td class='num'>130</td></tr><tr><td>Cardiologia</td><td class='num'>90</td></tr><tr><td>Endocrinologia</td><td class='num'>90</td></tr><tr><td>Psicologia</td><td class='num'>90</td></tr><tr><td>Pneumologia</td><td class='num'>50</td></tr><tr><td>Clínica/Centro Médico</td><td class='num'>50</td></tr><tr><td>Fonoaudiologia</td><td class='num'>30</td></tr><tr><td>Gastroenterologia</td><td class='num'>30</td></tr><tr><td>Nefrologia</td><td class='num'>30</td></tr><tr><td>Otorrinolaringologia</td><td class='num'>30</td></tr><tr><td>Proctologia</td><td class='num'>30</td></tr><tr><td>Ressonância Magnética</td><td class='num'>30</td></tr><tr><td>Reumatologia</td><td class='num'>30</td></tr><tr><td>Acupuntura</td><td class='num'>20</td></tr><tr><td>Endoscopia</td><td class='num'>20</td></tr><tr><td>Exame Toxicológico</td><td class='num'>20</td></tr><tr><td>Geriatria</td><td class='num'>20</td></tr><tr><td>Mastologia</td><td class='num'>20</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card" open>
+          <summary>
+            <span class="city-name">Ubatuba</span>
+            <span class="city-total">Total: <strong>1.720</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Serviço</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Urologia</td><td class='num'>260</td></tr><tr><td>Oftalmologia</td><td class='num'>210</td></tr><tr><td>Ultrassom</td><td class='num'>150</td></tr><tr><td>Dermatologia</td><td class='num'>140</td></tr><tr><td>Psicologia</td><td class='num'>140</td></tr><tr><td>Cardiologia</td><td class='num'>140</td></tr><tr><td>Ortopedia</td><td class='num'>110</td></tr><tr><td>Psiquiatria</td><td class='num'>90</td></tr><tr><td>Otorrinolaringologia</td><td class='num'>70</td></tr><tr><td>Pediatria</td><td class='num'>70</td></tr><tr><td>Clínica/Centro Médico</td><td class='num'>50</td></tr><tr><td>Endocrinologia</td><td class='num'>40</td></tr><tr><td>Proctologia</td><td class='num'>40</td></tr><tr><td>Fonoaudiologia</td><td class='num'>30</td></tr><tr><td>Gastroenterologia</td><td class='num'>30</td></tr><tr><td>Pneumologia</td><td class='num'>30</td></tr><tr><td>Acupuntura</td><td class='num'>20</td></tr><tr><td>Exame Toxicológico</td><td class='num'>20</td></tr><tr><td>Infectologia</td><td class='num'>20</td></tr><tr><td>Raio X</td><td class='num'>20</td></tr><tr><td>Reumatologia</td><td class='num'>20</td></tr><tr><td>Colonoscopia</td><td class='num'>10</td></tr><tr><td>Endoscopia</td><td class='num'>10</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card" open>
+          <summary>
+            <span class="city-name">Check-Up</span>
+            <span class="city-total">Total: <strong>1.300</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Serviço</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Check-Up</td><td class='num'>1.300</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card" open>
+          <summary>
+            <span class="city-name">Hortolândia</span>
+            <span class="city-total">Total: <strong>810</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Serviço</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Oftalmologia</td><td class='num'>390</td></tr><tr><td>Ultrassom</td><td class='num'>140</td></tr><tr><td>Ortopedia</td><td class='num'>70</td></tr><tr><td>Dermatologia</td><td class='num'>50</td></tr><tr><td>Endocrinologia</td><td class='num'>40</td></tr><tr><td>Exame Toxicológico</td><td class='num'>40</td></tr><tr><td>Cardiologia</td><td class='num'>30</td></tr><tr><td>Psiquiatria</td><td class='num'>30</td></tr><tr><td>Urologia</td><td class='num'>20</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card" open>
+          <summary>
+            <span class="city-name">São Roque</span>
+            <span class="city-total">Total: <strong>670</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Serviço</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Ortopedia</td><td class='num'>110</td></tr><tr><td>Urologia</td><td class='num'>100</td></tr><tr><td>Cardiologia</td><td class='num'>90</td></tr><tr><td>Dermatologia</td><td class='num'>70</td></tr><tr><td>Endocrinologia</td><td class='num'>50</td></tr><tr><td>Oftalmologia</td><td class='num'>50</td></tr><tr><td>Psiquiatria</td><td class='num'>40</td></tr><tr><td>Acupuntura</td><td class='num'>20</td></tr><tr><td>Clínica Popular</td><td class='num'>20</td></tr><tr><td>Clínico Geral</td><td class='num'>20</td></tr><tr><td>Colonoscopia</td><td class='num'>20</td></tr><tr><td>Nefrologia</td><td class='num'>20</td></tr><tr><td>Pneumologia</td><td class='num'>20</td></tr><tr><td>Ultrassom</td><td class='num'>20</td></tr><tr><td>Endoscopia</td><td class='num'>10</td></tr><tr><td>Gastroenterologia</td><td class='num'>10</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card" open>
+          <summary>
+            <span class="city-name">Votorantim</span>
+            <span class="city-total">Total: <strong>630</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Serviço</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Oftalmologia</td><td class='num'>190</td></tr><tr><td>Dermatologia</td><td class='num'>70</td></tr><tr><td>Psiquiatria</td><td class='num'>60</td></tr><tr><td>Acupuntura</td><td class='num'>40</td></tr><tr><td>Ortopedia</td><td class='num'>40</td></tr><tr><td>Urologia</td><td class='num'>40</td></tr><tr><td>Cardiologia</td><td class='num'>30</td></tr><tr><td>Endocrinologia</td><td class='num'>30</td></tr><tr><td>Clínica/Centro Médico</td><td class='num'>20</td></tr><tr><td>Clínica Popular</td><td class='num'>20</td></tr><tr><td>Exame Toxicológico</td><td class='num'>20</td></tr><tr><td>Fonoaudiologia</td><td class='num'>20</td></tr><tr><td>Pneumologia</td><td class='num'>20</td></tr><tr><td>Ultrassom</td><td class='num'>20</td></tr><tr><td>Pediatria</td><td class='num'>10</td></tr></tbody>
+          </table>
+        </details>
+        
+        <details class="city-card" open>
+          <summary>
+            <span class="city-name">Santa Bárbara D'Oeste</span>
+            <span class="city-total">Total: <strong>120</strong></span>
+          </summary>
+          <table class="services">
+            <thead><tr><th>Serviço</th><th class='num'>Volume</th></tr></thead>
+            <tbody><tr><td>Ultrassom</td><td class='num'>50</td></tr><tr><td>Oftalmologia</td><td class='num'>20</td></tr><tr><td>Ortopedia</td><td class='num'>20</td></tr><tr><td>Cardiologia</td><td class='num'>10</td></tr><tr><td>Dermatologia</td><td class='num'>10</td></tr><tr><td>Psiquiatria</td><td class='num'>10</td></tr></tbody>
+          </table>
+        </details>
+        
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer>
+  Gerado automaticamente a partir de "Clinica da cidade nova lista - Sheet1.csv".
+</footer>
+
+<script>
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  const tabPanels = document.querySelectorAll('.tab-panel');
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.tab;
+      tabBtns.forEach(b => b.classList.toggle('active', b === btn));
+      tabPanels.forEach(p => p.classList.toggle('active', p.id === target));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+
+  function filtrarUF(uf) {
+    document.querySelectorAll('#stateList > details.city-card').forEach(card => {
+      const tag = card.querySelector('summary .uf');
+      const cardUF = tag ? tag.textContent.trim() : '';
+      const show = (uf === 'ALL') || (cardUF === uf);
+      card.style.display = show ? '' : 'none';
+      if (show && uf !== 'ALL') card.setAttribute('open', '');
+    });
+  }
+
+  function filtrarServico(q) {
+    const term = (q || '').trim().toLowerCase();
+    document.querySelectorAll('#serviceTable tbody tr').forEach(tr => {
+      const cell = tr.children[1];
+      const txt = cell ? cell.textContent.toLowerCase() : '';
+      tr.style.display = !term || txt.includes(term) ? '' : 'none';
+    });
+  }
+
+  function filtrarCidade(q) {
+    const term = (q || '').trim().toLowerCase();
+    document.querySelectorAll('#cityList > details.city-card').forEach(card => {
+      const name = card.querySelector('.city-name');
+      const txt = name ? name.textContent.toLowerCase() : '';
+      card.style.display = !term || txt.includes(term) ? '' : 'none';
+    });
+  }
+</script>
+</body>
+</html>
