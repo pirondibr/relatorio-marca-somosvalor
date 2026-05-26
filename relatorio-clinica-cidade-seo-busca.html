@@ -221,14 +221,14 @@
       </div>
       <h2>Ranking de Estados por Volume Total</h2>
       <div class="summary-grid">
-        <div class="stat"><div class="k">Estados</div><div class="v">10</div></div>
+        <div class="stat"><div class="k">Estados</div><div class="v">9</div></div>
         <div class="stat"><div class="k">Líder</div><div class="v">SP</div></div>
         <div class="stat"><div class="k">Volume do líder</div><div class="v">178.750</div></div>
         <div class="stat"><div class="k">Share</div><div class="v">73.8%</div></div>
       </div>
       <table>
         <thead><tr><th>#</th><th>Estado</th><th class='num'>Cidades</th><th class='num'>Volume</th><th class='num'>Share</th></tr></thead>
-        <tbody><tr><td class='rank'>1</td><td><span class='uf'>SP</span> São Paulo</td><td class='num'>28</td><td class='num'>178.750</td><td class='num'>73.8%</td></tr><tr><td class='rank'>2</td><td><span class='uf'>MG</span> Minas Gerais</td><td class='num'>2</td><td class='num'>17.850</td><td class='num'>7.4%</td></tr><tr><td class='rank'>3</td><td><span class='uf'>PI</span> Piauí</td><td class='num'>1</td><td class='num'>9.570</td><td class='num'>3.9%</td></tr><tr><td class='rank'>4</td><td><span class='uf'>DF</span> Distrito Federal</td><td class='num'>1</td><td class='num'>8.410</td><td class='num'>3.5%</td></tr><tr><td class='rank'>5</td><td><span class='uf'>ES</span> Espírito Santo</td><td class='num'>2</td><td class='num'>7.730</td><td class='num'>3.2%</td></tr><tr><td class='rank'>6</td><td><span class='uf'>TO</span> Tocantins</td><td class='num'>1</td><td class='num'>5.820</td><td class='num'>2.4%</td></tr><tr><td class='rank'>7</td><td><span class='uf'>CE</span> Ceará</td><td class='num'>1</td><td class='num'>5.240</td><td class='num'>2.2%</td></tr><tr><td class='rank'>8</td><td><span class='uf'>RJ</span> Rio de Janeiro</td><td class='num'>1</td><td class='num'>4.990</td><td class='num'>2.1%</td></tr><tr><td class='rank'>9</td><td><span class='uf'>BA</span> Bahia</td><td class='num'>1</td><td class='num'>2.670</td><td class='num'>1.1%</td></tr><tr><td class='rank'>10</td><td><span class='uf'>—</span> Sem estado (categoria genérica)</td><td class='num'>1</td><td class='num'>1.300</td><td class='num'>0.5%</td></tr></tbody>
+        <tbody><tr><td class='rank'>1</td><td><span class='uf'>SP</span> São Paulo</td><td class='num'>28</td><td class='num'>178.750</td><td class='num'>73.8%</td></tr><tr><td class='rank'>2</td><td><span class='uf'>MG</span> Minas Gerais</td><td class='num'>2</td><td class='num'>17.850</td><td class='num'>7.4%</td></tr><tr><td class='rank'>3</td><td><span class='uf'>PI</span> Piauí</td><td class='num'>1</td><td class='num'>9.570</td><td class='num'>3.9%</td></tr><tr><td class='rank'>4</td><td><span class='uf'>DF</span> Distrito Federal</td><td class='num'>1</td><td class='num'>8.410</td><td class='num'>3.5%</td></tr><tr><td class='rank'>5</td><td><span class='uf'>ES</span> Espírito Santo</td><td class='num'>2</td><td class='num'>7.730</td><td class='num'>3.2%</td></tr><tr><td class='rank'>6</td><td><span class='uf'>TO</span> Tocantins</td><td class='num'>1</td><td class='num'>5.820</td><td class='num'>2.4%</td></tr><tr><td class='rank'>7</td><td><span class='uf'>CE</span> Ceará</td><td class='num'>1</td><td class='num'>5.240</td><td class='num'>2.2%</td></tr><tr><td class='rank'>8</td><td><span class='uf'>RJ</span> Rio de Janeiro</td><td class='num'>1</td><td class='num'>4.990</td><td class='num'>2.1%</td></tr><tr><td class='rank'>9</td><td><span class='uf'>BA</span> Bahia</td><td class='num'>1</td><td class='num'>2.670</td><td class='num'>1.1%</td></tr></tbody>
       </table>
 
       <h2 style="margin-top: 30px;">Cidades agrupadas por estado</h2>
@@ -236,7 +236,7 @@
         <label for="ufFilter">Filtrar por estado:</label>
         <select id="ufFilter" onchange="filtrarUF(this.value)">
           <option value="ALL">Todos os estados</option>
-          <option value="SP">SP — São Paulo</option><option value="MG">MG — Minas Gerais</option><option value="PI">PI — Piauí</option><option value="DF">DF — Distrito Federal</option><option value="ES">ES — Espírito Santo</option><option value="TO">TO — Tocantins</option><option value="CE">CE — Ceará</option><option value="RJ">RJ — Rio de Janeiro</option><option value="BA">BA — Bahia</option><option value="—">— — Sem estado (categoria genérica)</option>
+          <option value="SP">SP — São Paulo</option><option value="MG">MG — Minas Gerais</option><option value="PI">PI — Piauí</option><option value="DF">DF — Distrito Federal</option><option value="ES">ES — Espírito Santo</option><option value="TO">TO — Tocantins</option><option value="CE">CE — Ceará</option><option value="RJ">RJ — Rio de Janeiro</option><option value="BA">BA — Bahia</option>
         </select>
       </div>
       <div id="stateList">
@@ -346,18 +346,6 @@
           <table class="services">
             <thead><tr><th>Cidade</th><th class='num'>Volume</th></tr></thead>
             <tbody><tr><td>Vitória da Conquista</td><td class='num'>2.670</td></tr></tbody>
-          </table>
-        </details>
-        
-        <details class="city-card">
-          <summary>
-            <span class="uf">—</span>
-            <span class="city-name">Sem estado (categoria genérica)</span>
-            <span class="city-total">1 cidade(s) · Total: <strong>1.300</strong></span>
-          </summary>
-          <table class="services">
-            <thead><tr><th>Cidade</th><th class='num'>Volume</th></tr></thead>
-            <tbody><tr><td>Check-Up</td><td class='num'>1.300</td></tr></tbody>
           </table>
         </details>
         
